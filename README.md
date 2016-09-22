@@ -6,10 +6,10 @@ Envoprov is an interactive bot which helps user provision stacks (LAMP, MEAN etc
 [Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/DESIGN.md)
 
 ###Team
-* Aniket Patel
-* Gaurav Aradhye
-* Subodh Dharmadhikari
-* Kartikeya Pharasi
-* Shruti Kuber
+* Aniket Patel: apatel10
+* Gaurav Aradhye: garadhy
+* Subodh Dharmadhikari: ssdharma
+* Kartikeya Pharasi: kpharas
+* Shruti Kuber: skuber
 
 
