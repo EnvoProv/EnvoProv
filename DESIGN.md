@@ -15,7 +15,7 @@ The EnvoProv will assist the user to provision an environment using cloud resour
 
 ![Alt text] (https://github.com/EnvoProv/EnvoProv/blob/master/docs/bot-interaction.png?raw=true "Bot Interaction with User")
 
-* **_Storyboard - Illustrationg primary task of bot._**
+* **_Storyboard - Illustrating primary task of bot._**
 
 ![Alt text] (https://raw.githubusercontent.com/EnvoProv/EnvoProv/master/docs/storybook.png "Storyboard")
 
