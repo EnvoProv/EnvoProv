@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "botkit": "^0.2.2",
-    "forecast.io": "0.0.9",
     "slackbots": "^0.5.1"
   }
 }
