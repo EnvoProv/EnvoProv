@@ -1,4 +1,4 @@
-var SlackBot = require('slackbots');
+//var SlackBot = require('slackbots');
 var botkit = require("botkit")
 var options = {
     APIKey: process.env.slackAPIKey
@@ -12,6 +12,25 @@ var bot = new SlackBot({
     name: 'EnvoProv'
 });
 
+var botcontroller = botkit.slackbot({
+    debug: false;
+});
+
+var botinstance = botcontroller.spawn({
+    token: process.env.EnvoProvToken
+});
+
+botinstance.startRTM(function(err, bot, payload) {
+    if (err) {
+        console.error("ERR :" + err);
+    }
+});
+
+botcontroller.hears('you deply a', ['mention', 'direct_mention'], function(bot, message) {
+    bot.reply(message, 'Sure, I have your credentials for Amazon EC2, should I deploy it on AWS?');
+});
+
+/*
 bot.on('start', function() {
     // more information about additional params https://api.slack.com/methods/chat.postMessage
     var params = {
@@ -68,3 +87,4 @@ function getUser(userId) {
         return item.id === userId;
     })[0];
 }
+*/
