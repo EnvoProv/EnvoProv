@@ -6,14 +6,14 @@ var options = {
 var childProcess = require("child_process");
 
 // create a bot
-var bot = new SlackBot({
-    // Add a bot https://my.slack.com/services/new/bot and put the token
-    token: process.env.EnvoProvToken,
-    name: 'EnvoProv'
-});
+// var bot = new SlackBot({
+//     // Add a bot https://my.slack.com/services/new/bot and put the token
+//     token: process.env.EnvoProvToken,
+//     name: 'EnvoProv'
+// });
 
 var botcontroller = botkit.slackbot({
-    debug: false;
+    debug: false
 });
 
 var botinstance = botcontroller.spawn({
