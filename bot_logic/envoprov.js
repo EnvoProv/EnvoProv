@@ -1,6 +1,9 @@
 //var SlackBot = require('slackbots');
 var data = require("./mockdata.json");
 var service = require("./mock_service.js");
+var sys = require('sys')
+var shell = require('child_process').execSync;
+
 var botkit = require("botkit")
 var credReady = false;
 var options = {
@@ -34,6 +37,12 @@ botcontroller.hears(['hi', 'hello'], ['direct_message'], function(bot, message) 
 	});
 });
 
+botcontroller.hears(['apache server'], ['direct_message'], function(bot, message) { 
+    var awsInstanceCommand = "knife ec2 server create -I ami-2d39803a -f t2.micro --ssh-user ubuntu --region us-east-1 --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'"
+    //awsInstanceCommand = "sh awsCreate.sh"
+    shell(awsInstanceCommand, function puts(error, stdout, stderr) { bot.reply(message, stdout) }); 
+    //bot.reply(message, 'Deploying an apache server for you on AWS, I will get back to you when your instance is ready ...');
+});
 
 botcontroller.hears(['username','password'], ['mention', 'direct_message'], function(bot, message) {
 	credReady = false;
