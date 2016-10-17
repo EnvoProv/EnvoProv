@@ -14,5 +14,48 @@
 		"Stack":"AngularJS",
 		"Environment":"Test-Env"	
 
+	},
+
+	"instances": {"CL001": {
+		
+		"User": "kpharas",
+		"Name": "Instance1",
+		"Instances": [
+		{
+			"IP": "10.0.0.1",
+			"OS": "Ubuntu-10.04",
+			"Stack": "MySQL",
+			"Environment": "Test-Env"	
+		},
+		{
+		"IP": "10.0.0.2",
+		"OS": "Ubuntu-10.04",
+		"Stack": "AngularJS",
+		"Environment": "Test-Env"	
+		},
+		{
+		"IP": "10.0.0.3",
+		"OS": "Ubuntu-10.04",
+		"Stack":"Express, NodeJS",
+		"Environment":"Test-Env"	
+		} ]
+	},
+
+					"CL002": {
+		"User": "skuber",
+		"Name": "Instance2",
+		"Instances": [
+		{
+		"IP": "10.0.0.2",
+		"OS": "Ubuntu-10.04",
+		"Stack": "AngularJS",
+		"Environment": "Test-Env"	
+		},
+		{
+		"IP": "10.0.0.3",
+		"OS": "Ubuntu-10.04",
+		"Stack":"Express, NodeJS",
+		"Environment":"Test-Env"	
+		} ]
 	}
-}
+}}
