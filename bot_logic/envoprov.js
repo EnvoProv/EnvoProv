@@ -55,19 +55,6 @@ botcontroller.hears(['apache server'], ['direct_message'], function(bot, message
     bot.reply(message, 'Deploying an apache server for you on AWS, I will get back to you when your instance is ready ...');
 });
 
-botcontroller.hears(['username','password'], ['mention', 'direct_message'], function(bot, message) {
-	credReady = false;
-	bot.reply(message, "Thank you! Should I deploy on AWS?");	
-});
-
-botcontroller.hears('yes', ['mention', 'direct_message'], function(bot, message) {
-	var vm = data.single_vm;
-	if(credReady){
-		bot.reply(message, "Here it is!\n IP: "+vm.IP+" \nEnvironment: " + vm.Environment);	
-	}else{
-		bot.reply(message, "Wrong credentials. Please give the correct credentials");	
-	}
-});
 
 botcontroller.hears(['deploy','create', 'VM','stack'],['mention', 'direct_message'], function(bot, message) {
     var userName, newUsername, newPassword;
@@ -113,6 +100,8 @@ botcontroller.hears(['deploy','create', 'VM','stack'],['mention', 'direct_messag
 						credReady = true;
 						if(service.checkNewCredentials(newUsername, newPassword, data.new_credentials)){
 							bot.reply(message,'Thanks!. I will now provision the VM for you');
+							var vm = data.single_vm;
+							bot.reply(message, 'Here it is!\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
 							convo.stop();
 						}else{
 							bot.reply(message, 'Wrong credentials. Try again!');
