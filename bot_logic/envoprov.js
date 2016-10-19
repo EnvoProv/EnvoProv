@@ -5,14 +5,14 @@ var sys = require('sys')
 var shell = require('child_process').exec;
 
 var botkit = require("botkit")
-var credReady = false;
+var credReady = false,clusterRequested=false;
 var options = {
     APIKey: process.env.slackAPIKey
 };
 var childProcess = require("child_process");
 
 var botcontroller = botkit.slackbot({
-    debug: false
+    //debug: false
 });
 
 var botinstance = botcontroller.spawn({
@@ -30,6 +30,7 @@ botinstance.startRTM(function(err, bot, payload) {
 
     if (bot) {
         console.log('Bot initiated');
+		console.log(bot);
     }
 })
 
@@ -68,16 +69,88 @@ botcontroller.hears('yes', ['mention', 'direct_message'], function(bot, message)
 	}
 });
 
-botcontroller.hears('deploy', ['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['deploy','create', 'VM','stack'],['mention', 'direct_message'], function(bot, message) {
+    var userName, newUsername, newPassword;
+	bot.api.users.info({user: message.user}, (error, response) => {
+		userName = response.user.name;
+		bot.startConversation(message, function(err, convo){
+			
+				if(service.areCredentialsPresent(userName,data.credentials)){
+					convo.ask('Sure! I have your Amazon EC2 credentials. Should I use them to deply this VM?',[
+						{
+							pattern: bot.utterances.yes,
+							callback: function(response,convo){
+								var vm = data.single_vm;
+								convo.say('Here it is!\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
+								convo.next();
+							}
+						},
+						{
+							pattern: bot.utterances.no,
+							callback: function(response,convo){
+								convo.say('Ok. Please provide new credentials');
+								convo.next();
+							}
+						},
+						{
+							default: true,
+							callback: function(response,convo){
+								convo.say('I did not understand your response');
+								convo.next();
+							}
+						}
+					]);
+				}else{
+					
+					convo.addQuestion('Provide Username',function(response, convo){
+						console.log("in here");
+						newUsername = response.text;
+						convo.changeTopic('ask_password');
+					},{},'ask_username');
+					
+					convo.addQuestion('Provide password',function(response, convo){
+						newPassword = response.text;
+						credReady = true;
+						if(service.checkNewCredentials(newUsername, newPassword, data.new_credentials)){
+							bot.reply(message,'Thanks!. I will now provision the VM for you');
+							convo.stop();
+						}else{
+							bot.reply(message, 'Wrong credentials. Try again!');
+							convo.changeTopic('ask_username');
+						}
+					},{},'ask_password');
+
+					convo.ask('I dont have your credentials. Can you provide them?',[
+						{
+							pattern: bot.utterances.yes,
+							callback: function(response,convo){
+								convo.changeTopic('ask_username');
+								convo.next();
+							}
+						},
+						{
+							default:true,
+							callback: function(response, convo){
+								convo.say('I didnt understand your response');
+								convo.repeat();
+								convo.next();
+							}
+						}
+					]);
+
+					
+				}
+			
+		});
+	});
+});
+
+botcontroller.hears(['deploy','cluster', 'grid','stack','create'],['mention', 'direct_message'], function(bot, message) {
     var userName ;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
-		if(service.areCredentialsPresent(userName,data.credentials)){
-			bot.reply(message, 'Sure, I have your credentials for Amazon EC2, should I deploy it on AWS?');
-		}else{
-			bot.reply(message, 'I dont have your credentials. Can you provide them?');
-		}
-		credReady = true;
+		clusterRequested = true;
+		bot.reply(message, "Sure! How many VM's do you need?");
 	});
 });
 
