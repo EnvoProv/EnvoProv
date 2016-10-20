@@ -12,7 +12,7 @@ var options = {
 var childProcess = require("child_process");
 
 var botcontroller = botkit.slackbot({
-    //debug: false
+    debug: false
 });
 
 var botinstance = botcontroller.spawn({
@@ -54,7 +54,7 @@ botcontroller.hears(['apache server'], ['direct_message'], function(bot, message
     bot.reply(message, 'Deploying an apache server for you on AWS, I will get back to you when your instance is ready ...');
 });
 
-botcontroller.hears(['single'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['create (.*) single VM'],['mention', 'direct_message'], function(bot, message) {
     var userName, newUsername, newPassword;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
@@ -139,7 +139,7 @@ botcontroller.hears(['single'],['mention', 'direct_message'], function(bot, mess
 	});
 });
 
-botcontroller.hears(['cluster','grid'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['create|deploy (.*) cluster'],['mention', 'direct_message'], function(bot, message) {
     var userName, num_vms;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
@@ -244,7 +244,7 @@ botcontroller.hears(['cluster','grid'],['mention', 'direct_message'], function(b
 	});
 });
 
-botcontroller.hears(['delete','cluster', 'grid','stack'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['delete (.*) cluster','delete (.*) instance'],['mention', 'direct_message'], function(bot, message) {
     var userName, num_vms;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
