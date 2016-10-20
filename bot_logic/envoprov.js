@@ -21,7 +21,7 @@ var botinstance = botcontroller.spawn({
     token: process.env.EnvoProvToken
 });
 
-var helpMessage = "Howdy!. No worries! I am here to help you!"+ 
+var helpMessage = "Howdy!. No worries! I am here to help you!"+
 				  "\nMake sure you have following keywords:"+
  				  "\nSingle VM: 'single'"+
   				  "\nCluster VM: 'cluster' OR 'grid'"+
@@ -46,10 +46,10 @@ botcontroller.hears(['help'],['direct_message'],function(bot,message){
 
 var deployVm = function(bot, message) {
     var userName, newUsername, newPassword,techStack=null;
-	
+
 	var stacks = ['LAMP','MEAN'];
 	var len = stacks.length;
-	
+
 	while(len--){
 		if(message.text.indexOf(stacks[len])!=-1)
 			techStack = stacks[len];
@@ -58,7 +58,7 @@ var deployVm = function(bot, message) {
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
 		bot.startConversation(message, function(err, convo){
-				
+
 			if(techStack==null){
 				convo.ask('Sure! But I need some more information. Which tenchnology stack do you want? LAMP , MEAN or LEMP',[
 					{
@@ -92,8 +92,8 @@ var deployVm = function(bot, message) {
 						}
 					}
 				]);
-			}		
-				
+			}
+
 			if(service.areCredentialsPresent(userName,data.credentials)){
 					convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?',[
 						{
@@ -201,12 +201,12 @@ var deployVm = function(bot, message) {
 	});
 }
 
-botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, message) {
+var createCluster = botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, message) {
     var userName, num_vms, newUsername, newPassword,techStack=null;
 	console.log(message.match);
 	var stacks = ['LAMP','MEAN'];
 	var len = stacks.length;
-	
+
 	while(len--){
 		if(message.text.indexOf(stacks[len])!=-1)
 			techStack = stacks[len];
@@ -249,8 +249,8 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 						}
 					}
 				]);
-			}		
-			
+			}
+
 				convo.ask("Sure! How many VM's do you want? ( 4, 8 or 16)",[
 					{
 						pattern:'[0-9]',
@@ -286,7 +286,7 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 						}
 					}
 				]);
-				
+
 			if(service.areCredentialsPresent(userName,data.credentials)){
 					convo.ask('Sure! I have your Amazon EC2 credentials. Should I use them to deploy this VM?',[
 						{
@@ -345,7 +345,7 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 						credReady = true;
 						if(service.checkNewCredentials(newUsername, newPassword, data.new_credentials)){
 							if(!service.canProvision(newUsername, num_vms, data.new_credentials)){
-								convo.say('Sorry you do not have enough resources to provision ' + num_vms +' VMs');	
+								convo.say('Sorry you do not have enough resources to provision ' + num_vms +' VMs');
 								convo.next();
 							}else{
 								var cluster = service.getUserInstances(userName, data.instances);
@@ -407,9 +407,9 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 				}
 		});
 	});
-});
+}
 
-botcontroller.hears(['list','all provision'],['mention', 'direct_message'], function(bot, message) {
+var listResources = function(bot, message) {
     var userName;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
@@ -429,7 +429,7 @@ botcontroller.hears(['list','all provision'],['mention', 'direct_message'], func
 		});
 
 	});
-});
+}
 
 botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'], function(bot, message) {
     var userName, num_vms;
@@ -581,6 +581,10 @@ botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, me
     })
 
     wit.hears('create VM', 0.5, deployVm);
+
+    wit.hears('create cluster', 0.5, createCluster);
+
+    wit.hears('list resources', 0.5, listResources);
 
     wit.otherwise(function(bot, message) {
         bot.reply(message, 'You are so intelligent, and I am so simple. I don\'t understnd')
