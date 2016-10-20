@@ -1,10 +1,17 @@
 {
 	"credentials" : [
 		{
-			"username": "skuber"	
+			"username": "apatel"
 		},
 		{
-			"username": "apatel"
+			"username": "ssdharma"
+		}
+	],
+
+	"new_credentials" : [
+		{
+			"username": "skuber",
+			"password": "skuber"
 		}
 	],
 
