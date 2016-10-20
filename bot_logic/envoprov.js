@@ -407,7 +407,7 @@ var createCluster = botcontroller.hears(['create(.*)cluster'],['direct_message']
 				}
 		});
 	});
-}
+});
 
 var listResources = function(bot, message) {
     var userName;
