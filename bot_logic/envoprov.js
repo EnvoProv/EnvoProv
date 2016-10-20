@@ -244,6 +244,28 @@ botcontroller.hears(['create|deploy (.*) cluster'],['mention', 'direct_message']
 	});
 });
 
+botcontroller.hears(['list','all provision'],['mention', 'direct_message'], function(bot, message) {
+    var userName;
+	bot.api.users.info({user: message.user}, (error, response) => {
+		userName = response.user.name;
+		bot.startConversation(message, function(err, convo){
+			var instances = service.getUserInstances(userName, data.instances);
+			if(instances == undefined)
+			{
+				bot.reply(message, "You have not provisioned any instances");
+			}
+			else
+			{
+				for(inst in instances){
+					var vm = instances[inst];
+					bot.reply(message, '\n Instance ID: '+vm.ID+' \nIP: '+vm.IP+' \nEnvironment: ' + vm.Environment+' \nStack: '+vm.Stack);
+				}	
+			}
+		});
+		
+	});
+});
+
 botcontroller.hears(['delete (.*) cluster','delete (.*) instance'],['mention', 'direct_message'], function(bot, message) {
     var userName, num_vms;
 	bot.api.users.info({user: message.user}, (error, response) => {
