@@ -363,37 +363,3 @@ botcontroller.hears(['delete','cluster', 'grid','stack'],['mention', 'direct_mes
 		});
 	});
 });
-
-/*botcontroller.hears('delete', ['mention', 'direct_message'], function(bot, message) {
-	bot.reply(message, 'Provide the ID of the instance that you would like to delete?');
-	var userName;
-	botcontroller.hears('CL001', ['mention', 'direct_message'], function(bot, message) {
-
-		bot.api.users.info({user: message.user}, (error, response) => {
-			userName = response.user.name;
-
-			if(userName==data.instances.CL001.User && data.instances.hasOwnProperty("CL001")){
-				bot.reply(message, 'Are you sure you want to delete '+ data.instances.CL001.Name + '?');
-				botcontroller.hears(['ok','Ok'], ['mention', 'direct_message'], function(bot, message) {
-					bot.reply(message, 'Delete Successful!');
-				});
-				botcontroller.hears(['No','no'], ['mention', 'direct_message'], function(bot, message) {
-					bot.reply(message, 'Ok. Have a great day!');
-				});
-			}
-		});
-	});
-
-botcontroller.hears('CL002', ['mention', 'direct_message'], function(bot, message) {
-
-	bot.api.users.info({user: message.user}, (error, response) => {
-		userName = response.user.name;
-
-		if(userName==data.instances.CL002.User && data.instances.hasOwnProperty("CL002")){
-			bot.reply(message, 'Delete Successful!');
-		} else {
-			bot.reply(message, 'You do not have access rights for this Instance.');
-		}
-		});
-	});
-});*/
