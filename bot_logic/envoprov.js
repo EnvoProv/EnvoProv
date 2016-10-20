@@ -54,7 +54,7 @@ botcontroller.hears(['apache server'], ['direct_message'], function(bot, message
     bot.reply(message, 'Deploying an apache server for you on AWS, I will get back to you when your instance is ready ...');
 });
 
-botcontroller.hears(['deploy','create', 'VM','stack'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['single'],['mention', 'direct_message'], function(bot, message) {
     var userName, newUsername, newPassword;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
@@ -88,7 +88,6 @@ botcontroller.hears(['deploy','create', 'VM','stack'],['mention', 'direct_messag
 				}else{
 					
 					convo.addQuestion('Provide Username',function(response, convo){
-						console.log("in here");
 						newUsername = response.text;
 						convo.changeTopic('ask_password');
 					},{},'ask_username');
@@ -116,6 +115,14 @@ botcontroller.hears(['deploy','create', 'VM','stack'],['mention', 'direct_messag
 							}
 						},
 						{
+							pattern: 'bye',
+							callback: function(response,convo){
+								console.log("In here");
+								bot.reply(message,"Okay! Hope I helped");
+								convo.stop();
+							}
+						},
+						{
 							default:true,
 							callback: function(response, convo){
 								convo.say('I didnt understand your response');
@@ -132,7 +139,7 @@ botcontroller.hears(['deploy','create', 'VM','stack'],['mention', 'direct_messag
 	});
 });
 
-botcontroller.hears(['deploy','cluster', 'grid','stack','create'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['cluster','grid'],['mention', 'direct_message'], function(bot, message) {
     var userName, num_vms;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
@@ -212,6 +219,13 @@ botcontroller.hears(['deploy','cluster', 'grid','stack','create'],['mention', 'd
 							callback: function(response,convo){
 								convo.changeTopic('ask_username');
 								convo.next();
+							}
+						},
+						{
+							pattern: 'bye',
+							callback: function(response,convo){
+								bot.reply(message, "Okay! Hope I helped");
+								convo.stop();
 							}
 						},
 						{
