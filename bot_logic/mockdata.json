@@ -1,17 +1,20 @@
 {
 	"credentials" : [
 		{
-			"username": "apatel"
+			"username": "apatel",
+			"aval_res": 8
 		},
 		{
-			"username": "ssdharma"
+			"username": "ssdharma",
+			"aval_res": 4
 		}
 	],
 
 	"new_credentials" : [
 		{
 			"username": "skuber",
-			"password": "skuber"
+			"password": "skuber",
+			"aval_res": 8
 		}
 	],
 
@@ -58,6 +61,20 @@
 		{
 		"ID": "004",
 		"IP": "10.0.0.2",
+		"OS": "Ubuntu-10.04",
+		"Stack": "AngularJS",
+		"Environment": "Test-Env"	
+		},
+		{
+		"ID": "004",
+		"IP": "10.0.0.4",
+		"OS": "Ubuntu-10.04",
+		"Stack": "AngularJS",
+		"Environment": "Test-Env"	
+		},
+		{
+		"ID": "004",
+		"IP": "10.0.0.5",
 		"OS": "Ubuntu-10.04",
 		"Stack": "AngularJS",
 		"Environment": "Test-Env"	

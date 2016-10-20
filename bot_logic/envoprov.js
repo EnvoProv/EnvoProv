@@ -21,7 +21,8 @@ var botinstance = botcontroller.spawn({
     token: process.env.EnvoProvToken
 });
 
-
+var helpMessage = "Here to help! Just tell me if you want a single VM or a cluster and which tech stack you need and I'll set it up for you."+
+				   "\nJust say something like 'create a single VM' or 'create a cluster' or 'list all my instances' or 'delete' to get started.";
 var messageQueue = [];
 
 
@@ -32,32 +33,40 @@ botinstance.startRTM(function(err, bot, payload) {
 
     if (bot) {
         console.log('Bot initiated');
-		bot.say({text:"Hi! I am EnvoProv. I can provision VMs for you on different cloud providers. I also support a number of stacks like LAMP and MEAN. "+
-						"\nJust tell me what to do!. At any time if you need help, just say 'Help' and I'll be there. Lets get started"});
     }
 })
 
-// botcontroller.hears(['poll'], ['direct_message'], function(bot, message) {
-//   while (messageQueue.length > 0)
-//   {
-//     bot.reply(message, messageQueue.shift());
-//   }
-// });
-//
-// botcontroller.hears(['apache server'], ['direct_message'], function(bot, message) {
-//     var awsInstanceCommand = "knife ec2 server create -I ami-2d39803a -f t2.micro --ssh-user ubuntu --region us-east-1 --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'"
-//     shell(awsInstanceCommand, function puts(error, stdout, stderr) { console.log(stderr); messageQueue.push(stdout) });
-//     bot.reply(message, 'Deploying an apache server for you on AWS, I will get back to you when your instance is ready ...');
-// });
+botcontroller.hears(['help'],['direct_message'],function(bot,message){
+	bot.reply(message, helpMessage);
+});
 
-var deployVm =  function(bot, message) {
-    var userName, newUsername, newPassword;
+var deployVm = function(bot, message) {
+    var userName, newUsername, newPassword,techStack=null;
+	
+	console.log(message);
+	var stacks = ['LAMP','MEAN'];
+	var len = stacks.length;
+	
+	while(len--){
+		if(message.text.indexOf(stacks[len])!=-1)
+			techStack = stacks[len];
+	}
+	console.log(techStack);
+
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
 		bot.startConversation(message, function(err, convo){
+				
+				if(techStack==null){
+					convo.ask('Sure! But I need some more information. Which tenchnology stack do you want? LAMP , MEAN or LEMP',function(response,convo){
+						techStack = response.text;
+						convo.say('Thanks!');
+						convo.next();
+					});
+				}	
 
 				if(service.areCredentialsPresent(userName,data.credentials)){
-					convo.ask('Sure! I have your Amazon EC2 credentials. Should I use them to deply this VM?',[
+					convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?',[
 						{
 							pattern: bot.utterances.yes,
 							callback: function(response,convo){
@@ -74,9 +83,24 @@ var deployVm =  function(bot, message) {
 							}
 						},
 						{
+							pattern: 'bye',
+							callback: function(response,convo){
+								bot.reply(message,"Okay! Hope I helped");
+								convo.stop();
+							}
+						},
+						{
+							pattern: 'help',
+							callback: function(response,convo){
+								bot.reply(message,helpMessage);
+								convo.stop();
+							}
+						},
+						{
 							default: true,
 							callback: function(response,convo){
-								convo.say('I did not understand your response');
+								convo.say('I did not understand your response. Please say yes or no');
+								convo.repeat();
 								convo.next();
 							}
 						}
@@ -111,10 +135,23 @@ var deployVm =  function(bot, message) {
 							}
 						},
 						{
+							pattern: bot.utterances.no,
+							callback: function(response,convo){
+								bot.reply(message,"Oops! I will need you credentials to set up your VM(s). Ask me again when you have then. Bye!!");
+								convo.stop();
+							}
+						},
+						{
 							pattern: 'bye',
 							callback: function(response,convo){
-								console.log("In here");
 								bot.reply(message,"Okay! Hope I helped");
+								convo.stop();
+							}
+						},
+						{
+							pattern: 'help',
+							callback: function(response,convo){
+								bot.reply(message,helpMessage);
 								convo.stop();
 							}
 						},
@@ -132,23 +169,40 @@ var deployVm =  function(bot, message) {
 				}
 
 		});
-	});
+	})
 }
 
 botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, message) {
-    var userName, num_vms;
+    var userName, num_vms, newUsername, newPassword,techStack=null;
+	console.log(message.match);
+	var stacks = ['LAMP','MEAN'];
+	var len = stacks.length;
+	
+	while(len--){
+		if(message.text.indexOf(stacks[len])!=-1)
+			techStack = stacks[len];
+	}
+	console.log(techStack);
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
 
 		bot.startConversation(message, function(err, convo){
-
-			convo.ask("Sure! How many VM's do you want? ( 4, 8 or 16)",function(response,convo){
-				num_vms	= response.text;
-				convo.next();
-			});
-
+			
+			if(techStack==null){
+				convo.ask('Sure! But I need some more information. Which tenchnology stack do you want? LAMP , MEAN or LEMP',function(response,convo){
+					techStack = response.text;
+					convo.say('Thanks!');
+					convo.next();
+				});
+			}	
+			
+				convo.ask("Sure! How many VM's do you want? ( 4, 8 or 16)",function(response,convo){
+					num_vms	= response.text;
+					convo.next();
+				});
+				
 				if(service.areCredentialsPresent(userName,data.credentials)){
-					convo.ask('Sure! I have your Amazon EC2 credentials. Should I use them to deply this VM?',[
+					convo.ask('Sure! I have your Amazon EC2 credentials. Should I use them to deploy this VM?',[
 						{
 							pattern: bot.utterances.yes,
 							callback: function(response,convo){
@@ -177,6 +231,13 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 							}
 						},
 						{
+							pattern: 'help',
+							callback: function(response,convo){
+								bot.reply(message,helpMessage);
+								convo.stop();
+							}
+						},
+						{
 							default: true,
 							callback: function(response,convo){
 								convo.say('I did not understand your response');
@@ -195,14 +256,19 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 						newPassword = response.text;
 						credReady = true;
 						if(service.checkNewCredentials(newUsername, newPassword, data.new_credentials)){
-							bot.reply(message,'Thanks!. I will now provision the VM for you');
-							var instances = service.getUserInstances(newUsername, data.instances);
-							bot.reply(message, "Done! These are the details of your cluster\n");
-							for(inst in instances){
-								var vm = instances[inst];
-								bot.reply(message, '\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
+							if(!service.canProvision(newUsername, num_vms, data.credentials)){
+								convo.say('Sorry you do not have enough resources to provision ' + num_vms +' VMs');	
+								convo.next();
+							}else{
+								bot.reply(message,'Thanks!. I will now provision the VM for you');
+								var instances = service.getUserInstances(newUsername, data.instances);
+								bot.reply(message, "Done! These are the details of your cluster\n");
+								for(inst in instances){
+									var vm = instances[inst];
+									bot.reply(message, '\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
+								}	
+								convo.stop();
 							}
-							convo.stop();
 						}else{
 							bot.reply(message, 'Wrong credentials. Try again!');
 							convo.changeTopic('ask_username');
@@ -218,9 +284,23 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 							}
 						},
 						{
+							pattern: bot.utterances.no,
+							callback: function(response,convo){
+								bot.reply(message,"Oops! I will need you credentials to set up your VM(s). Ask me again when you have then. Bye!!");
+								convo.stop();
+							}
+						},
+						{
 							pattern: 'bye',
 							callback: function(response,convo){
 								bot.reply(message, "Okay! Hope I helped");
+								convo.stop();
+							}
+						},
+						{
+							pattern: 'help',
+							callback: function(response,convo){
+								bot.reply(message,helpMessage);
 								convo.stop();
 							}
 						},
@@ -285,6 +365,13 @@ botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'
 							}
 						},
 						{
+							pattern: 'help',
+							callback: function(response,convo){
+								bot.reply(message,helpMessage);
+								convo.stop();
+							}
+						},
+						{
 							default: true,
 							callback: function(response,convo){
 								bot.reply(message,'I did not understand your response. Try again');
@@ -321,6 +408,13 @@ botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'
 							callback: function(response,convo){
 								convo.say('Ok. Please provide new credentials');
 								convo.next();
+							}
+						},
+						{
+							pattern: 'help',
+							callback: function(response,convo){
+								bot.reply(message,helpMessage);
+								convo.stop();
 							}
 						},
 						{
