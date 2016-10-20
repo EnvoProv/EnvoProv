@@ -1,0 +1,20 @@
+{
+  "name": "witaibot",
+  "version": "1.0.0",
+  "description": "A service for interacting with wit.ai nlp service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "wit",
+    "nlp",
+    "ai",
+    "witai"
+  ],
+  "dependencies": {
+     "node-wit": "^4.1.0"
+  },
+  "author": "Gaurav Aradhye",
+  "license": "MIT"
+}
