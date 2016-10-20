@@ -201,7 +201,7 @@ var deployVm = function(bot, message) {
 	});
 }
 
-var createCluster = botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, message) {
+var createCluster = function(bot, message) {
     var userName, num_vms, newUsername, newPassword,techStack=null;
 	console.log(message.match);
 	var stacks = ['LAMP','MEAN'];
@@ -407,7 +407,7 @@ var createCluster = botcontroller.hears(['create(.*)cluster'],['direct_message']
 				}
 		});
 	});
-});
+}
 
 var listResources = function(bot, message) {
     var userName;
