@@ -54,7 +54,7 @@ botcontroller.hears(['apache server'], ['direct_message'], function(bot, message
     bot.reply(message, 'Deploying an apache server for you on AWS, I will get back to you when your instance is ready ...');
 });
 
-botcontroller.hears(['deploy','create', 'single'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['single'],['mention', 'direct_message'], function(bot, message) {
     var userName, newUsername, newPassword;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
@@ -139,7 +139,7 @@ botcontroller.hears(['deploy','create', 'single'],['mention', 'direct_message'],
 	});
 });
 
-botcontroller.hears(['cluster','VM', 'grid','stack'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['cluster','grid'],['mention', 'direct_message'], function(bot, message) {
     var userName, num_vms;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
