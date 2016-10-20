@@ -406,7 +406,7 @@ var createCluster = botcontroller.hears(['create(.*)cluster'],['direct_message']
 	});
 }
 
-botcontroller.hears(['list','all provision'],['mention', 'direct_message'], function(bot, message) {
+var listResources = function(bot, message) {
     var userName;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
@@ -426,7 +426,7 @@ botcontroller.hears(['list','all provision'],['mention', 'direct_message'], func
 		});
 
 	});
-});
+}
 
 botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'], function(bot, message) {
     var userName, num_vms;
@@ -580,6 +580,8 @@ botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, me
     wit.hears('create VM', 0.5, deployVm);
 
     wit.hears('create cluster', 0.5, createCluster);
+
+    wit.hears('list resources', 0.5, listResources);
 
     wit.otherwise(function(bot, message) {
         bot.reply(message, 'You are so intelligent, and I am so simple. I don\'t understnd')
