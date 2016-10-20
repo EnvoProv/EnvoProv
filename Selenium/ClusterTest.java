@@ -22,7 +22,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import io.github.bonigarcia.wdm.ChromeDriverManager;
 import java.io.*;
 
-public class SlackSelenium {
+public class ClusterTest {
 
 	private WebDriver mainDriver;
 	private static String username;
@@ -58,53 +58,9 @@ public class SlackSelenium {
 	}
 
 
-	//Selenium Base Test
+	
 	@Test
-	public void botPing() throws Exception
-	{
-		WebDriver driver = this.setUp();
-		driver.get("https://csc510-project-group.slack.com/");
-
-		// Wait until page loads and we can see a sign in button.
-		WebDriverWait wait = new WebDriverWait(driver, 30);
-		wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("signin_btn")));
-
-		// Find email and password fields.
-		WebElement email = driver.findElement(By.id("email"));
-		WebElement pw = driver.findElement(By.id("password"));
-
-		// Type in our test user login info.
-		email.sendKeys(username);
-		pw.sendKeys(password);
-
-
-		// Click
-		WebElement signin = driver.findElement(By.id("signin_btn"));
-		signin.click();
-
-		// Wait until we go to general channel.
-		wait.until(ExpectedConditions.titleContains("general"));
-
-
-		// Switch to #general channel and wait for it to load.
-		driver.get("https://csc510-project-group.slack.com/messages/@envoprov");
-		wait.until(ExpectedConditions.titleContains("envoprov"));
-
-		// Type something
-		WebElement messageBot = driver.findElement(By.id("message-input"));
-		messageBot.sendKeys("Hi");
-		messageBot.sendKeys(Keys.RETURN);
-		wait.withTimeout(3, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
-
-		WebElement msg = driver.findElement(
-				By.xpath("(//span[@class='message_body'])[last()]"));
-		assertNotNull(msg);
-		driver.close();
-		driver.quit();
-	}
-
-	@Test
-	public void usecase1Success() throws Exception
+	public void usecase2Success() throws Exception
 	{
 		WebDriver driver = this.setUp();
 		driver.get("https://csc510-project-group.slack.com/");
@@ -146,12 +102,22 @@ public class SlackSelenium {
 		query.add("Hi");
 		response.add("Hi");
 
-		query.add("Create a single VM for LAMP stack");
-		response.add("Sure! I have your Amazon EC2 credentials. Should I use them to deply this VM?");
+		query.add("Create a cluster for LAMP stack");
+		response.add("Sure! How many VM's do you want?");
 
+		query.add("4");
+		response.add("I dont have your credentials. Can you provide them?");
+		
 		query.add("yes");
-		response.add("Here it is!");
-
+		response.add("Provide Username");
+		
+		query.add("skuber");
+		response.add("Provide Password");
+		
+		query.add("*****");
+		response.add("Environment");
+		
+		
 		Iterator<String> queryIterator = query.iterator();
 		Iterator<String> responseIterator = response.iterator();
 
@@ -166,7 +132,7 @@ public class SlackSelenium {
 
 			driver.navigate().refresh();
 			//wait.until(ExpectedConditions.titleContains("envoprov"));
-			wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.id("message-input"))));
+			wait.until(ExpectedConditions.refreshed(ExpectedConditions.visibilityOfElementLocated(By.id("message-input"))));
 			wait.withTimeout(15, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
 
 			msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
@@ -176,8 +142,8 @@ public class SlackSelenium {
 				fail("fail_null@"+reply);
 			}
 
-			//System.out.println(msg.getText().toLowerCase()+"\n"+(reply.toLowerCase()));
-			if( (msg.getText().toLowerCase()).contains(reply.toLowerCase())){
+			System.out.println("\n\n"+msg.getText().toLowerCase()+"\n"+(reply.toLowerCase()));
+			if( (msg.getText().toLowerCase()).indexOf(reply.toLowerCase()) > -1){
 				continue;
 			}else
 			{	
@@ -206,7 +172,7 @@ public class SlackSelenium {
 	}
 
 
-	@Test
+	//@Test
 	public void usecase1Failure() throws Exception
 	{
 		WebDriver driver = this.setUp();
