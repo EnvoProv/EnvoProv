@@ -37,12 +37,12 @@ botinstance.startRTM(function(err, bot, payload) {
     }
 })
 
-botcontroller.hears(['hi', 'hello'], ['direct_message'], function(bot, message) {
-    bot.api.users.info({user: message.user}, (error, response) => {
-		var name = response.user.name;
-		bot.reply(message, "Hi @" +name+" .How can I help you?" );
-	});
-});
+// botcontroller.hears(['hi', 'hello'], ['direct_message'], function(bot, message) {
+//     bot.api.users.info({user: message.user}, (error, response) => {
+// 		var name = response.user.name;
+// 		bot.reply(message, "Hi @" +name+" .How can I help you?" );
+// 	});
+// });
 //
 //
 // botcontroller.hears(['poll'], ['direct_message'], function(bot, message) {
@@ -395,7 +395,10 @@ botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, me
     var wit = witbot.process(message.text, bot, message);
 
     wit.hears('greeting', 0.5, function(bot, message, outcome) {
-        bot.reply(message, "Hello there!")
+        bot.api.users.info({user: message.user}, (error, response) => {
+  		      var name = response.user.name;
+  		      bot.reply(message, "Hi @" +name+" .How can I help you?" );
+  	    });
     })
 
     wit.hears('cheerful question', 0.5, function(bot, message, outcome) {
