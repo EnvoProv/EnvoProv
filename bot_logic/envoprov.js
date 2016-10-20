@@ -37,14 +37,6 @@ botinstance.startRTM(function(err, bot, payload) {
     }
 })
 
-// botcontroller.hears(['hi', 'hello'], ['direct_message'], function(bot, message) {
-//     bot.api.users.info({user: message.user}, (error, response) => {
-// 		var name = response.user.name;
-// 		bot.reply(message, "Hi @" +name+" .How can I help you?" );
-// 	});
-// });
-//
-//
 // botcontroller.hears(['poll'], ['direct_message'], function(bot, message) {
 //   while (messageQueue.length > 0)
 //   {
