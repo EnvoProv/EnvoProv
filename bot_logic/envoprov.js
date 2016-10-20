@@ -21,8 +21,12 @@ var botinstance = botcontroller.spawn({
     token: process.env.EnvoProvToken
 });
 
-var helpMessage = "Here to help! Just tell me if you want a single VM or a cluster and which tech stack you need and I'll set it up for you."+
-				   "\nJust say something like 'create a single VM' or 'create a cluster' or 'list all my instances' or 'delete' to get started.";
+var helpMessage = "Howdy!. No worries! I am here to help you!"+ 
+				  "\nMake sure you have following keywords:"+
+ 				  "\nSingle VM: 'single'"+
+  				  "\nCluster VM: 'cluster' OR 'grid'"+
+	              "\nStacks available: 'LAMP' OR 'MEAN' OR 'LEMP'"+
+    			   "\nExit current conversation: 'bye' OR 'Bye'";
 var messageQueue = [];
 
 
@@ -43,7 +47,6 @@ botcontroller.hears(['help'],['direct_message'],function(bot,message){
 var deployVm = function(bot, message) {
     var userName, newUsername, newPassword,techStack=null;
 	
-	console.log(message);
 	var stacks = ['LAMP','MEAN'];
 	var len = stacks.length;
 	
@@ -51,21 +54,47 @@ var deployVm = function(bot, message) {
 		if(message.text.indexOf(stacks[len])!=-1)
 			techStack = stacks[len];
 	}
-	console.log(techStack);
 
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
 		bot.startConversation(message, function(err, convo){
 				
-				if(techStack==null){
-					convo.ask('Sure! But I need some more information. Which tenchnology stack do you want? LAMP , MEAN or LEMP',function(response,convo){
-						techStack = response.text;
-						convo.say('Thanks!');
-						convo.next();
-					});
-				}	
-
-				if(service.areCredentialsPresent(userName,data.credentials)){
+			if(techStack==null){
+				convo.ask('Sure! But I need some more information. Which tenchnology stack do you want? LAMP , MEAN or LEMP',[
+					{
+						pattern:'[a-z][A-Z][^bye]',
+						callback:function(response,convo){
+							techStack = response.text;
+							convo.say('Thanks!');
+							convo.next();
+						}
+					},
+					{
+						pattern: 'help',
+						callback: function(response,convo){
+							bot.reply(message,helpMessage);
+							convo.stop();
+						}
+					},
+					{
+						pattern: 'bye',
+						callback: function(response,convo){
+							bot.reply(message,"Okay! Hope I helped");
+							convo.stop();
+						}
+					},
+					{
+						default: true,
+						callback: function(response,convo){
+							convo.say('I did not understand your response');
+							convo.repeat();
+							convo.next();
+						}
+					}
+				]);
+			}		
+				
+			if(service.areCredentialsPresent(userName,data.credentials)){
 					convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?',[
 						{
 							pattern: bot.utterances.yes,
@@ -126,7 +155,7 @@ var deployVm = function(bot, message) {
 						}
 					},{},'ask_password');
 
-					convo.ask('I dont have your credentials. Can you provide them?',[
+					convo.ask('I dont have your credentials. Can you provide them? Say yes or no',[
 						{
 							pattern: bot.utterances.yes,
 							callback: function(response,convo){
@@ -169,7 +198,7 @@ var deployVm = function(bot, message) {
 				}
 
 		});
-	})
+	});
 }
 
 botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, message) {
@@ -187,21 +216,78 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 		userName = response.user.name;
 
 		bot.startConversation(message, function(err, convo){
-			
 			if(techStack==null){
-				convo.ask('Sure! But I need some more information. Which tenchnology stack do you want? LAMP , MEAN or LEMP',function(response,convo){
-					techStack = response.text;
-					convo.say('Thanks!');
-					convo.next();
-				});
-			}	
+				convo.ask('Sure! But I need some more information. Which tenchnology stack do you want? LAMP , MEAN or LEMP',[
+					{
+						pattern:'[a-z][A-Z][^bye]',
+						callback:function(response,convo){
+							techStack = response.text;
+							convo.say('Thanks!');
+							convo.next();
+						}
+					},
+					{
+						pattern: 'help',
+						callback: function(response,convo){
+							bot.reply(message,helpMessage);
+							convo.stop();
+						}
+					},
+					{
+						pattern: 'bye',
+						callback: function(response,convo){
+							bot.reply(message,"Okay! Hope I helped");
+							convo.stop();
+						}
+					},
+					{
+						default: true,
+						callback: function(response,convo){
+							bot.reply(message,'I did not understand your response');
+							convo.repeat();
+							convo.next();
+						}
+					}
+				]);
+			}		
 			
-				convo.ask("Sure! How many VM's do you want? ( 4, 8 or 16)",function(response,convo){
-					num_vms	= response.text;
-					convo.next();
-				});
+				convo.ask("Sure! How many VM's do you want? ( 4, 8 or 16)",[
+					{
+						pattern:'[0-9]',
+						callback: function(response,convo){
+							num_vms	= response.text;
+							if(!(parseInt(num_vms) == 4 || parseInt(num_vms)==8 || parseInt(num_vms)==16)){
+								bot.reply(message,'Sorry I need it to be 4, 8 or 16. Please enter a valid value');
+								convo.repeat();
+							}else{
+								convo.next();
+							}
+						}
+					},
+					{
+						pattern: 'help',
+						callback: function(response,convo){
+							bot.reply(message,helpMessage);
+							convo.stop();
+						}
+					},
+					{
+						pattern: 'bye',
+						callback: function(response,convo){
+							bot.reply(message,"Okay! Hope I helped");
+							convo.stop();
+						}
+					},
+					{
+						default: true,
+						callback: function(response,convo){
+							bot.reply(message,'I did not understand your response. Please tell me how many VM(s) you want');
+							convo.repeat();
+						}
+					}
+				]);
 				
-				if(service.areCredentialsPresent(userName,data.credentials)){
+			if(service.areCredentialsPresent(userName,data.credentials)){
 					convo.ask('Sure! I have your Amazon EC2 credentials. Should I use them to deploy this VM?',[
 						{
 							pattern: bot.utterances.yes,
@@ -240,8 +326,8 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 						{
 							default: true,
 							callback: function(response,convo){
-								convo.say('I did not understand your response');
-								convo.next();
+								bot.reply(message,'I did not understand your response.');
+								convo.repeat();
 							}
 						}
 					]);
@@ -256,7 +342,7 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 						newPassword = response.text;
 						credReady = true;
 						if(service.checkNewCredentials(newUsername, newPassword, data.new_credentials)){
-							if(!service.canProvision(newUsername, num_vms, data.credentials)){
+							if(!service.canProvision(newUsername, num_vms, data.new_credentials)){
 								convo.say('Sorry you do not have enough resources to provision ' + num_vms +' VMs');	
 								convo.next();
 							}else{
@@ -269,13 +355,13 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 								}	
 								convo.stop();
 							}
-						}else{
+					}else{
 							bot.reply(message, 'Wrong credentials. Try again!');
 							convo.changeTopic('ask_username');
 						}
 					},{},'ask_password');
 
-					convo.ask('I dont have your credentials. Can you provide them?',[
+					convo.ask('I dont have your credentials. Can you provide them? Say yes or no',[
 						{
 							pattern: bot.utterances.yes,
 							callback: function(response,convo){
