@@ -28,6 +28,7 @@
 
 	"instances": {"CL001": {
 		
+		"id":"CL001",
 		"User": "kpharas",
 		"Name": "Instance1",
 		"Instances": [
@@ -55,6 +56,7 @@
 	},
 
 					"CL002": {
+		"id":"CL002",
 		"User": "skuber",
 		"Name": "Instance2",
 		"Instances": [
@@ -82,6 +84,41 @@
 		{
 		"ID": "005",
 		"IP": "10.0.0.3",
+		"OS": "Ubuntu-10.04",
+		"Stack":"Express, NodeJS",
+		"Environment":"Test-Env"	
+		} ]
+	},
+	
+	"CL003": {
+		"id":"CL003",
+		"User": "ssdharma",
+		"Name": "Instance2",
+		"Instances": [
+		{
+		"ID": "004",
+		"IP": "10.0.0.14",
+		"OS": "Ubuntu-10.04",
+		"Stack": "AngularJS",
+		"Environment": "Test-Env"	
+		},
+		{
+		"ID": "004",
+		"IP": "10.0.0.15",
+		"OS": "Ubuntu-10.04",
+		"Stack": "AngularJS",
+		"Environment": "Test-Env"	
+		},
+		{
+		"ID": "004",
+		"IP": "10.0.0.16",
+		"OS": "Ubuntu-10.04",
+		"Stack": "AngularJS",
+		"Environment": "Test-Env"	
+		},
+		{
+		"ID": "005",
+		"IP": "10.0.0.17",
 		"OS": "Ubuntu-10.04",
 		"Stack":"Express, NodeJS",
 		"Environment":"Test-Env"	

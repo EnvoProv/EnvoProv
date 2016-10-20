@@ -296,11 +296,13 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 									convo.say('Sorry you do not have enough resources to provision ' + num_vms +' VMs');
 									convo.next();
 								}else{
-									var instances = service.getUserInstances(userName, data.instances);
+									var cluster = service.getUserInstances(userName, data.instances);
 									convo.say("Done! These are the details of your cluster\n");
-									for(inst in instances){
-										var vm = instances[inst];
-										convo.say('Here it is!\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
+									convo.say("Here it is\n");
+									convo.say("Cluster ID :" + cluster.id);
+									for(inst in cluster.instances){
+										var vm = cluster.instances[inst];
+										convo.say('\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
 									}
 									convo.next();
 
@@ -346,14 +348,15 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 								convo.say('Sorry you do not have enough resources to provision ' + num_vms +' VMs');	
 								convo.next();
 							}else{
-								bot.reply(message,'Thanks!. I will now provision the VM for you');
-								var instances = service.getUserInstances(newUsername, data.instances);
-								bot.reply(message, "Done! These are the details of your cluster\n");
-								for(inst in instances){
-									var vm = instances[inst];
-									bot.reply(message, '\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
-								}	
-								convo.stop();
+								var cluster = service.getUserInstances(userName, data.instances);
+								convo.say("Done! These are the details of your cluster\n");
+								convo.say("Cluster ID :" + cluster.id);
+								for(inst in cluster.instances){
+										var vm = cluster.instances[inst];
+										convo.say('\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
+								}
+								convo.next();
+								//convo.stop();
 							}
 					}else{
 							bot.reply(message, 'Wrong credentials. Try again!');

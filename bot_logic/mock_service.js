@@ -31,10 +31,12 @@ function checkInstances(username, instances, id_vms){
 
 
 function getUserInstances(username, instances){
+	var cluster = {};
 	for(inst in instances){
 		if(instances[inst].User === username){
-			console.log("in");
-			return instances[inst].Instances;
+			cluster.id = instances[inst].id;
+			cluster.instances = instances[inst].Instances;
+			return cluster;
 		}
 	}	
 }
