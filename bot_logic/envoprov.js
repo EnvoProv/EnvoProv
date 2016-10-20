@@ -3,6 +3,8 @@ var data = require("./mockdata.json");
 var service = require("./mock_service.js");
 var sys = require('sys')
 var shell = require('child_process').exec;
+var WitBot = require('../witaibot/index.js')
+var witToken = process.env.WitToken
 
 var botkit = require("botkit")
 var credReady = false,clusterRequested=false;
@@ -50,7 +52,7 @@ botcontroller.hears(['poll'], ['direct_message'], function(bot, message) {
   }
 });
 
-botcontroller.hears(['apache server'], ['direct_message'], function(bot, message) { 
+botcontroller.hears(['apache server'], ['direct_message'], function(bot, message) {
     var awsInstanceCommand = "knife ec2 server create -I ami-2d39803a -f t2.micro --ssh-user ubuntu --region us-east-1 --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'"
     shell(awsInstanceCommand, function puts(error, stdout, stderr) { console.log(stderr); messageQueue.push(stdout) });
     bot.reply(message, 'Deploying an apache server for you on AWS, I will get back to you when your instance is ready ...');
@@ -61,7 +63,7 @@ botcontroller.hears(['create(.*)single VM','create(.*)VM','create(.*) virtual ma
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
 		bot.startConversation(message, function(err, convo){
-			
+
 				if(service.areCredentialsPresent(userName,data.credentials)){
 					convo.ask('Sure! I have your Amazon EC2 credentials. Should I use them to deply this VM?',[
 						{
@@ -88,12 +90,12 @@ botcontroller.hears(['create(.*)single VM','create(.*)VM','create(.*) virtual ma
 						}
 					]);
 				}else{
-					
+
 					convo.addQuestion('Provide Username',function(response, convo){
 						newUsername = response.text;
 						convo.changeTopic('ask_password');
 					},{},'ask_username');
-					
+
 					convo.addQuestion('Provide password',function(response, convo){
 						newPassword = response.text;
 						credReady = true;
@@ -134,9 +136,9 @@ botcontroller.hears(['create(.*)single VM','create(.*)VM','create(.*) virtual ma
 						}
 					]);
 
-					
+
 				}
-			
+
 		});
 	});
 });
@@ -145,21 +147,21 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
     var userName, num_vms;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
-		
+
 		bot.startConversation(message, function(err, convo){
-			
+
 			convo.ask("Sure! How many VM's do you want? ( 4, 8 or 16)",function(response,convo){
 				num_vms	= response.text;
 				convo.next();
 			});
-				
+
 				if(service.areCredentialsPresent(userName,data.credentials)){
 					convo.ask('Sure! I have your Amazon EC2 credentials. Should I use them to deply this VM?',[
 						{
 							pattern: bot.utterances.yes,
 							callback: function(response,convo){
 								if(!service.canProvision(userName, num_vms, data.credentials)){
-									convo.say('Sorry you do not have enough resources to provision ' + num_vms +' VMs');	
+									convo.say('Sorry you do not have enough resources to provision ' + num_vms +' VMs');
 									convo.next();
 								}else{
 									var instances = service.getUserInstances(userName, data.instances);
@@ -167,9 +169,9 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 									for(inst in instances){
 										var vm = instances[inst];
 										convo.say('Here it is!\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
-									}	
+									}
 									convo.next();
-								
+
 								}
 
 
@@ -191,12 +193,12 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 						}
 					]);
 				}else{
-					
+
 					convo.addQuestion('Provide Username',function(response, convo){
 						newUsername = response.text;
 						convo.changeTopic('ask_password');
 					},{},'ask_username');
-					
+
 					convo.addQuestion('Provide password',function(response, convo){
 						newPassword = response.text;
 						credReady = true;
@@ -207,7 +209,7 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 							for(inst in instances){
 								var vm = instances[inst];
 								bot.reply(message, '\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
-							}	
+							}
 							convo.stop();
 						}else{
 							bot.reply(message, 'Wrong credentials. Try again!');
@@ -240,7 +242,7 @@ botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, mess
 						}
 					]);
 
-					
+
 				}
 		});
 	});
@@ -261,10 +263,10 @@ botcontroller.hears(['list','all provision'],['mention', 'direct_message'], func
 				for(inst in instances){
 					var vm = instances[inst];
 					bot.reply(message, '\n Instance ID: '+vm.ID+' \nIP: '+vm.IP+' \nEnvironment: ' + vm.Environment+' \nStack: '+vm.Stack);
-				}	
+				}
 			}
 		});
-		
+
 	});
 });
 
@@ -304,14 +306,14 @@ botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'
 				id_vms	= response.text;
 				convo.next();
 			});
-				
+
 				if(service.areCredentialsPresent(userName,data.credentials)){
 					convo.ask('Sure! I have your Amazon EC2 credentials.Should I use them to delete this VM?',[
 						{
 							pattern: bot.utterances.yes,
 							callback: function(response,convo){
 								if(!service.checkInstances(userName, data.instances, id_vms)){
-									convo.say('Sorry the VM ID selected does not exists or you do not have access rights to it');	
+									convo.say('Sorry the VM ID selected does not exists or you do not have access rights to it');
 									convo.next();
 								}else{
 									convo.changeTopic('ask_confirmation');
@@ -338,13 +340,13 @@ botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'
 						}
 					]);
 				}else{
-					
+
 
 					convo.addQuestion('Provide Username',function(response, convo){
 						newUsername = response.text;
 						convo.changeTopic('ask_password');
 					},{},'ask_username');
-					
+
 					convo.addQuestion('Provide password',function(response, convo){
 						newPassword = response.text;
 						credReady = true;
@@ -355,7 +357,7 @@ botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'
 							} else {
 								bot.reply(message, 'Sorry the VM ID selected does not exists or you do not have access rights to it');
 							}
-							
+
 						}else{
 							bot.reply(message, 'Wrong credentials. Try again!');
 							convo.changeTopic('ask_username');
@@ -381,8 +383,26 @@ botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'
 						}
 					]);
 
-					
+
 				}
 		});
 	});
+});
+
+var witbot = WitBot(witToken);
+
+botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, message) {
+    var wit = witbot.process(message.text, bot, message);
+
+    wit.hears('greeting', 0.5, function(bot, message, outcome) {
+        bot.reply(message, "Hello there!")
+    })
+
+    wit.hears('cheerful question', 0.5, function(bot, message, outcome) {
+        bot.reply(message, "I am good, how're you?")
+    })
+
+    wit.otherwise(function(bot, message) {
+        bot.reply(message, 'You are so intelligent, and I am so simple. I don\'t understnd')
+    })
 });
