@@ -60,7 +60,7 @@ var deployVm = function(bot, message) {
 		bot.startConversation(message, function(err, convo){
 
 			if(techStack==null){
-				convo.ask('Sure! But I need some more information. Which tenchnology stack do you want? LAMP , MEAN or LEMP',[
+				convo.ask('Sure! But I need some more information. Which technology stack do you want? LAMP , MEAN or LEMP',[
 					{
 						pattern:'[a-z][A-Z][^bye]',
 						callback:function(response,convo){
@@ -217,7 +217,7 @@ var createCluster = botcontroller.hears(['create(.*)cluster'],['direct_message']
 
 		bot.startConversation(message, function(err, convo){
 			if(techStack==null){
-				convo.ask('Sure! But I need some more information. Which tenchnology stack do you want? LAMP , MEAN or LEMP',[
+				convo.ask('Sure! But I need some more information. Which technology stack do you want? LAMP , MEAN or LEMP',[
 					{
 						pattern:'[a-z][A-Z][^bye]',
 						callback:function(response,convo){
