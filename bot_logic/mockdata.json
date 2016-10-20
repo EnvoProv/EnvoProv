@@ -1,10 +1,12 @@
 {
 	"credentials" : [
 		{
-			"username": "apatel"
+			"username": "apatel",
+			"aval_res":8
 		},
 		{
-			"username": "ssdharma"
+			"username": "ssdharma",
+			"aval_res": 4
 		}
 	],
 
@@ -23,46 +25,62 @@
 
 	},
 
-	"instances": {"CL001": {
+	"instances": {
 		
-		"User": "kpharas",
-		"Name": "Instance1",
-		"Instances": [
-		{
-			"IP": "10.0.0.1",
-			"OS": "Ubuntu-10.04",
-			"Stack": "MySQL",
-			"Environment": "Test-Env"	
-		},
-		{
-		"IP": "10.0.0.2",
-		"OS": "Ubuntu-10.04",
-		"Stack": "AngularJS",
-		"Environment": "Test-Env"	
-		},
-		{
-		"IP": "10.0.0.3",
-		"OS": "Ubuntu-10.04",
-		"Stack":"Express, NodeJS",
-		"Environment":"Test-Env"	
-		} ]
-	},
+			"CL001":{
+				
+				"User": "kpharas",
+				"Name": "Instance1",
+				"Instances": [
+				{
+					"IP": "10.0.0.1",
+					"OS": "Ubuntu-10.04",
+					"Stack": "MySQL",
+					"Environment": "Test-Env"	
+				},
+				{
+				"IP": "10.0.0.2",
+				"OS": "Ubuntu-10.04",
+				"Stack": "AngularJS",
+				"Environment": "Test-Env"	
+				},
+				{
+				"IP": "10.0.0.3",
+				"OS": "Ubuntu-10.04",
+				"Stack":"Express, NodeJS",
+				"Environment":"Test-Env"	
+				} ]
+			},
 
-					"CL002": {
-		"User": "skuber",
-		"Name": "Instance2",
-		"Instances": [
-		{
-		"IP": "10.0.0.2",
-		"OS": "Ubuntu-10.04",
-		"Stack": "AngularJS",
-		"Environment": "Test-Env"	
-		},
-		{
-		"IP": "10.0.0.3",
-		"OS": "Ubuntu-10.04",
-		"Stack":"Express, NodeJS",
-		"Environment":"Test-Env"	
-		} ]
+			"CL002":{
+				"User": "skuber",
+				"Name": "Instance2",
+				"Instances": [
+				{
+				"IP": "10.0.0.2",
+				"OS": "Ubuntu-10.04",
+				"Stack": "AngularJS",
+				"Environment": "Test-Env"	
+				},
+				{
+				"IP": "10.0.0.3",
+				"OS": "Ubuntu-10.04",
+				"Stack":"Express",
+				"Environment":"Test-Env"	
+				}, 
+				{
+				"IP": "10.0.0.4",
+				"OS": "Ubuntu-10.04",
+				"Stack": "MySQL",
+				"Environment": "Test-Env"	
+				},
+				{
+				"IP": "10.0.0.5",
+				"OS": "Ubuntu-10.04",
+				"Stack": "NodeJs",
+				"Environment": "Test-Env"	
+				}
+				]
+			}
 	}
-}}
+}

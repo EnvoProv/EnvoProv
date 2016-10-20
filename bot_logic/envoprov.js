@@ -30,7 +30,6 @@ botinstance.startRTM(function(err, bot, payload) {
 
     if (bot) {
         console.log('Bot initiated');
-		console.log(bot);
     }
 })
 
@@ -54,7 +53,6 @@ botcontroller.hears(['apache server'], ['direct_message'], function(bot, message
     shell(awsInstanceCommand, function puts(error, stdout, stderr) { console.log(stderr); messageQueue.push(stdout) });
     bot.reply(message, 'Deploying an apache server for you on AWS, I will get back to you when your instance is ready ...');
 });
-
 
 botcontroller.hears(['deploy','create', 'VM','stack'],['mention', 'direct_message'], function(bot, message) {
     var userName, newUsername, newPassword;
@@ -135,11 +133,100 @@ botcontroller.hears(['deploy','create', 'VM','stack'],['mention', 'direct_messag
 });
 
 botcontroller.hears(['deploy','cluster', 'grid','stack','create'],['mention', 'direct_message'], function(bot, message) {
-    var userName ;
+    var userName, num_vms;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
-		clusterRequested = true;
-		bot.reply(message, "Sure! How many VM's do you need?");
+		
+		bot.startConversation(message, function(err, convo){
+			
+			convo.ask("Sure! How many VM's do you want? ( 4, 8 or 16)",function(response,convo){
+				num_vms	= response.text;
+				convo.next();
+			});
+				
+				if(service.areCredentialsPresent(userName,data.credentials)){
+					convo.ask('Sure! I have your Amazon EC2 credentials. Should I use them to deply this VM?',[
+						{
+							pattern: bot.utterances.yes,
+							callback: function(response,convo){
+								if(!service.canProvision(userName, num_vms, data.credentials)){
+									convo.say('Sorry you do not have enough resources to provision ' + num_vms +' VMs');	
+									convo.next();
+								}else{
+									var instances = service.getUserInstances(userName, data.instances);
+									convo.say("Done! These are the details of your cluster\n");
+									for(inst in instances){
+										var vm = instances[inst];
+										convo.say('Here it is!\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
+									}	
+									convo.next();
+								
+								}
+
+
+							}
+						},
+						{
+							pattern: bot.utterances.no,
+							callback: function(response,convo){
+								convo.say('Ok. Please provide new credentials');
+								convo.next();
+							}
+						},
+						{
+							default: true,
+							callback: function(response,convo){
+								convo.say('I did not understand your response');
+								convo.next();
+							}
+						}
+					]);
+				}else{
+					
+					convo.addQuestion('Provide Username',function(response, convo){
+						newUsername = response.text;
+						convo.changeTopic('ask_password');
+					},{},'ask_username');
+					
+					convo.addQuestion('Provide password',function(response, convo){
+						newPassword = response.text;
+						credReady = true;
+						if(service.checkNewCredentials(newUsername, newPassword, data.new_credentials)){
+							bot.reply(message,'Thanks!. I will now provision the VM for you');
+							var instances = service.getUserInstances(newUsername, data.instances);
+							bot.reply(message, "Done! These are the details of your cluster\n");
+							for(inst in instances){
+								var vm = instances[inst];
+								bot.reply(message, '\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
+							}	
+							convo.stop();
+						}else{
+							bot.reply(message, 'Wrong credentials. Try again!');
+							convo.changeTopic('ask_username');
+						}
+					},{},'ask_password');
+
+					convo.ask('I dont have your credentials. Can you provide them?',[
+						{
+							pattern: bot.utterances.yes,
+							callback: function(response,convo){
+								convo.changeTopic('ask_username');
+								convo.next();
+							}
+						},
+						{
+							default:true,
+							callback: function(response, convo){
+								convo.say('I didnt understand your response');
+								convo.repeat();
+								convo.next();
+							}
+						}
+					]);
+
+					
+				}
+		});
 	});
 });
 
