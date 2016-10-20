@@ -2,13 +2,6 @@ language: node_js
 node_js: stable
 dist: trusty
 sudo: required
-addons:
-  firefox: latest
-  apt:
-    sources:
-    - google-chrome
-    packages:
-    - google-chrome-stable
 before_script:
-- npm install
-script: echo pwd
+- npm install 
+script: node -v
