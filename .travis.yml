@@ -10,7 +10,5 @@ addons:
     packages:
     - google-chrome-stable
 before_script:
-- npm install -g bower polylint web-component-tester
-- bower install
-- polylint
-script: xvfb-run wct
+- npm install
+script: echo pwd
