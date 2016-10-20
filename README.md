@@ -1,9 +1,10 @@
-#EnvoProv  
+#EnvoProv
+
 Envoprov is an interactive bot which helps user provision stacks (LAMP, MEAN etc) on user's cloud provider by interaction via Slack.
 
-##Design Document
+###Design Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/DESIGN.md)
+###Bot Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/BOT.md)
 
-[Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/DESIGN.md)
 
 ###Team
 * Aniket Patel: apatel10
@@ -11,5 +12,3 @@ Envoprov is an interactive bot which helps user provision stacks (LAMP, MEAN etc
 * Subodh Dharmadhikari: ssdharma
 * Kartikeya Pharasi: kpharas
 * Shruti Kuber: skuber
-
-
