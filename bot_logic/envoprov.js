@@ -30,6 +30,8 @@ botinstance.startRTM(function(err, bot, payload) {
 
     if (bot) {
         console.log('Bot initiated');
+		bot.say({text:"Hi! I am EnvoProv. I can provision VMs for you on different cloud providers. I also support a number of stacks like LAMP and MEAN. "+
+						"\nJust tell me what to do!. At any time if you need help, just say 'Help' and I'll be there. Lets get started"});
     }
 })
 
@@ -54,7 +56,7 @@ botcontroller.hears(['apache server'], ['direct_message'], function(bot, message
     bot.reply(message, 'Deploying an apache server for you on AWS, I will get back to you when your instance is ready ...');
 });
 
-botcontroller.hears(['create (.*) single VM'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['create(.*)single VM','create(.*)VM','create(.*) virtual machine'],['direct_message'], function(bot, message) {
     var userName, newUsername, newPassword;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
@@ -139,7 +141,7 @@ botcontroller.hears(['create (.*) single VM'],['mention', 'direct_message'], fun
 	});
 });
 
-botcontroller.hears(['create|deploy (.*) cluster'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['create(.*)cluster'],['direct_message'], function(bot, message) {
     var userName, num_vms;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
@@ -266,7 +268,7 @@ botcontroller.hears(['list','all provision'],['mention', 'direct_message'], func
 	});
 });
 
-botcontroller.hears(['delete (.*) cluster','delete (.*) instance'],['mention', 'direct_message'], function(bot, message) {
+botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'], function(bot, message) {
     var userName, num_vms;
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
