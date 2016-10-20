@@ -5,21 +5,17 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.AfterClass;
-
-import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -57,13 +53,13 @@ public class SlackSelenium {
 
 	@AfterClass
 	public static void tearDown() throws Exception {
-		//driver.close();
+		//mainDriver.close();
 		//driver.quit();
 	}
 
 
 	//Selenium Base Test
-	//@Test
+	@Test
 	public void botPing() throws Exception
 	{
 		WebDriver driver = this.setUp();
@@ -98,11 +94,13 @@ public class SlackSelenium {
 		WebElement messageBot = driver.findElement(By.id("message-input"));
 		messageBot.sendKeys("Hi");
 		messageBot.sendKeys(Keys.RETURN);
-
 		wait.withTimeout(3, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
+
 		WebElement msg = driver.findElement(
 				By.xpath("(//span[@class='message_body'])[last()]"));
 		assertNotNull(msg);
+		driver.close();
+		driver.quit();
 	}
 
 	@Test
@@ -131,124 +129,200 @@ public class SlackSelenium {
 		// Wait until we go to general channel.
 		wait.until(ExpectedConditions.titleContains("general"));
 
-		// Switch to #general channel and wait for it to load.
+		// Switch to envoprov channel and wait for it to load.
 		driver.get("https://csc510-project-group.slack.com/messages/@envoprov");
 		wait.until(ExpectedConditions.titleContains("envoprov"));
 
-		
+
 		WebElement messageBot = driver.findElement(By.id("message-input"));
 		WebElement msg = null;
-		
+
 		String reply = "";
 		String input = "";
-		
+
 		ArrayList<String> query = new ArrayList<String>();
 		ArrayList<String> response = new ArrayList<String>();
-		
+
 		query.add("Hi");
 		response.add("Hi");
-		
+
 		query.add("Create a single VM for LAMP stack");
 		response.add("Sure! I have your Amazon EC2 credentials. Should I use them to deply this VM?");
-		
+
 		query.add("yes");
 		response.add("Here it is!");
-		
+
 		Iterator<String> queryIterator = query.iterator();
 		Iterator<String> responseIterator = response.iterator();
-		
+
 		while(queryIterator.hasNext()){
 
 			input = queryIterator.next();
 			reply = responseIterator.next();
-			
+
+			messageBot = driver.findElement(By.id("message-input"));
 			messageBot.sendKeys(input);
 			messageBot.sendKeys(Keys.RETURN);
-			
+
 			driver.navigate().refresh();
-			wait.until(ExpectedConditions.titleContains("envoprov"));
-			wait.withTimeout(10, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
+			//wait.until(ExpectedConditions.titleContains("envoprov"));
+			wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.id("message-input"))));
+			wait.withTimeout(15, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
 
 			msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
-			 
+
 			if( msg == null)
 			{
-				fail("fail@"+reply);
+				fail("fail_null@"+reply);
 			}
-			
-			if( msg.getText().contains(reply)){
+
+			//System.out.println(msg.getText().toLowerCase()+"\n"+(reply.toLowerCase()));
+			if( (msg.getText().toLowerCase()).contains(reply.toLowerCase())){
 				continue;
 			}else
-			{
-				fail("fail@"+reply);
+			{	
+				messageBot = driver.findElement(By.id("message-input"));
+				messageBot.sendKeys("bye");
+				messageBot.sendKeys(Keys.RETURN);
+
+				driver.navigate().refresh();
+				//wait.until(ExpectedConditions.titleContains("envoprov"));
+				wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.id("message-input"))));
+				wait.withTimeout(15, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
+
+				msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
+				fail("Fail-Unexpected-Flow");
+				driver.close();
+				driver.quit();
 			}
 
-			
 		}
 		
+		driver.close();
+		driver.quit();
 		assertTrue(true);
 		
-	/*	
-		// Type something
-		
-		
-		messageBot.sendKeys(input);
-		messageBot.sendKeys(Keys.RETURN);
-		driver.navigate().refresh();
-		wait.until(ExpectedConditions.titleContains("envoprov"));
-		wait.withTimeout(5, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
 
-		msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
-		if(msg == null)
-		{
-			fail("fail@Hello!!");
-		}
-		
-		messageBot = driver.findElement(By.id("message-input"));		
-		messageBot.sendKeys("Create a single VM for LAMP stack");
-		messageBot.sendKeys(Keys.RETURN);
-
-		driver.navigate().refresh();
-		wait.until(ExpectedConditions.titleContains("envoprov"));
-		wait.withTimeout(5, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
-
-		msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
-		reply = msg.getText();
-		System.out.println(reply.equals("Sure! I have your Amazon EC2 credentials. Should I use them to deply this VM?"));
-		messageBot = driver.findElement(By.id("message-input"));
-		if(reply.equals("I dont have your credentials. Can you provide them?"))
-		{	messageBot.sendKeys("username ssdharma password *********");
-		messageBot.sendKeys(Keys.RETURN);
-		}else
-		{
-			fail("Failed@'I dont have your credentials. Can you provide them?'");
-		}
-
-		driver.navigate().refresh();
-		wait.until(ExpectedConditions.titleContains("envoprov"));
-		wait.withTimeout(5, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
-
-		msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
-		reply = msg.getText();
-		System.out.println(reply);;		
-
-		if(reply.equals("Thank you! Should I deploy on AWS?"))
-		{	messageBot = driver.findElement(By.id("message-input"));
-		messageBot.sendKeys("yes");
-		messageBot.sendKeys(Keys.RETURN);
-		}else
-		{
-			fail("Failed@'Thank you! Should I deploy on AWS?'");
-		}
-
-		driver.navigate().refresh();
-		wait.until(ExpectedConditions.titleContains("envoprov"));
-		wait.withTimeout(3, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
-		msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
-		reply = msg.getText();
-	*/
-		
 	}
 
 
+	@Test
+	public void usecase1Failure() throws Exception
+	{
+		WebDriver driver = this.setUp();
+		driver.get("https://csc510-project-group.slack.com/");
+
+		// Wait until page loads and we can see a sign in button.
+		WebDriverWait wait = new WebDriverWait(driver, 30);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("signin_btn")));
+
+		// Find email and password fields.
+		WebElement email = driver.findElement(By.id("email"));
+		WebElement pw = driver.findElement(By.id("password"));
+
+		// Type in our test user login info.
+		email.sendKeys(username);
+		pw.sendKeys(password);
+
+
+		// Click
+		WebElement signin = driver.findElement(By.id("signin_btn"));
+		signin.click();
+
+		// Wait until we go to general channel.
+		wait.until(ExpectedConditions.titleContains("general"));
+
+		// Switch to envoprov channel and wait for it to load.
+		driver.get("https://csc510-project-group.slack.com/messages/@envoprov");
+		wait.until(ExpectedConditions.titleContains("envoprov"));
+
+
+		WebElement messageBot = driver.findElement(By.id("message-input"));
+		WebElement msg = null;
+
+		String reply = "";
+		String input = "";
+
+		ArrayList<String> query = new ArrayList<String>();
+		ArrayList<String> response = new ArrayList<String>();
+
+		query.add("Hi");
+		response.add("Hi");
+
+		query.add("Create a single VM for LAMP stack");
+		response.add("I dont have your credentials. Can you provide them?");
+
+		query.add("yeah");
+		response.add("Provide Username");
+
+		query.add("skuber");
+		response.add("Provide password");
+
+		query.add("***");
+		response.add("Provide Username");
+
+		query.add("skuber");
+		response.add("Provide Password");
+
+		query.add("*****");
+		response.add("Here it is!");
+
+		Iterator<String> queryIterator = query.iterator();
+		Iterator<String> responseIterator = response.iterator();
+
+		while(queryIterator.hasNext()){
+
+			input = queryIterator.next();
+			reply = responseIterator.next();
+
+			messageBot = driver.findElement(By.id("message-input"));
+			messageBot.sendKeys(input);
+			messageBot.sendKeys(Keys.RETURN);
+
+			driver.navigate().refresh();
+			//wait.until(ExpectedConditions.titleContains("envoprov"));
+			wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.id("message-input"))));
+			wait.withTimeout(15, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
+
+			msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
+
+			if( msg == null)
+			{
+				fail("fail_null@"+reply);
+			}
+
+			//System.out.println(msg.getText().toLowerCase()+"\n"+(reply.toLowerCase()));
+			if( (msg.getText().toLowerCase()).contains(reply.toLowerCase())){
+				continue;
+			}else
+			{
+				messageBot = driver.findElement(By.id("message-input"));
+				messageBot.sendKeys("bye");
+				messageBot.sendKeys(Keys.RETURN);
+
+				driver.navigate().refresh();
+				//wait.until(ExpectedConditions.titleContains("envoprov"));
+				wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.id("message-input"))));
+				wait.withTimeout(15, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
+
+				msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
+				fail("Fail-Unexpected-Flow");
+				driver.close();
+				driver.quit();
+
+				
+			}
+
+			driver.close();
+			driver.quit();
+			assertTrue(true);
+			
+		}
+	}
 }
+
+
+
+
+
+
