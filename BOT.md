@@ -1,6 +1,6 @@
 #Use Cases
 
-##1. Create a Stack on Single VM on Selected Cloud.
+##1. Create a Stack on Single VM on a Selected Cloud provider.
 
 1. **Preconditions**  
 User must have the credentials for the cloud account.
@@ -18,7 +18,7 @@ User will request[S1] a stack along with the type of environment on a particular
  [E2] User account doesn’t have enough resources to provision VMs. <br>
  [E3] Deployment failed. Cleans modified VMs and tries to redeploy. <br>
 
-##2. User requests the number of VMs required for the deployment of the environment.
+##2. User requests a Stack on Multiple VMs(cluster) on a Selected Cloud provider.
 
 1. **Preconditions**  
 User must possess the credentials of cloud service provider - AWS, DO etc.
@@ -54,10 +54,10 @@ User must possess the credentials of cloud service provider - AWS, DO etc.
   [E1] Credentials are expired or incorrect. <br>
 	[E2] User doesn’t have access right of the VMs requested to be deleted. <br>
 
-### Mocking
+# Mocking
 The mock data that is used for bot interaction is in bot_logic/mockdata.json
 
-### Links of Screencasts:
+# Links of Screencasts:
 
 #### Use Case 3 - [Click here](https://www.youtube.com/watch?v=F77IzumKjqY)
 
