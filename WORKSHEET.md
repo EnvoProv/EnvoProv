@@ -35,8 +35,8 @@
 | Deliverable   | Item/Status   |  Issues/Tasks
 | ------------- | ------------  |  ------------
 | Use Case      | **Getting Bot to interact in multiple use cases**          | &nbsp;
-|  Bot interaction     | -- Incomplete --             |  [Trello Card](https://trello.com/c/0oqCFd6D)
-| Mocking and Testing      | -- Incomplete --             |  [Trello Card](https://trello.com/c/Nn5pgsMM)
+|  Bot interaction     | -- Complete --             |  [Trello Card](https://trello.com/c/0oqCFd6D)
+| Mocking and Testing      | -- Complete --             |  [Trello Card](https://trello.com/c/Nn5pgsMM)
 | Mock Use Case 1 - Dev      | -- Complete --             |  [Trello Card](https://trello.com/c/8Wn2OQVm)
 | Mock Use Case 2 - Dev      | -- Complete --             |  [Trello Card](https://trello.com/c/o9qMTNfO)
 | Mock Use Case 3 - Dev      | -- Complete --             |  [Trello Card](https://trello.com/c/y3EHgd1L)
