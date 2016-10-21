@@ -67,7 +67,7 @@ The mock data that is used for bot interaction is in bot_logic/mockdata.json
 
 # Links of Screencasts:
 
-####Manual Demo: <a href=https://youtu.be/dBK_TK1KCko>https://youtu.be/dBK_TK1KCko</a>
+####Manual Demo: <a href=https://youtu.be/AX0Co-0dOHE>https://youtu.be/AX0Co-0dOHE</a>
 
 --------------------------------
 ####Selenium screencasts:
