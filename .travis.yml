@@ -6,5 +6,4 @@ before_script:
 - npm install 
 script: 
 - node -v
-- ls -la node_modules
-- cat bot_logic/mockdata.json
+- ls
