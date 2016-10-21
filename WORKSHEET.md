@@ -39,8 +39,8 @@
 | Mocking and Testing      | -- Incomplete --             |  [Trello Card](https://trello.com/c/Nn5pgsMM)
 | Mock Use Case 1 - Dev      | -- Complete --             |  [Trello Card](https://trello.com/c/8Wn2OQVm)
 | Mock Use Case 2 - Dev      | -- Complete --             |  [Trello Card](https://trello.com/c/o9qMTNfO)
-| Mock Use Case 3 - Dev      | -- Incomplete --             |  [Trello Card](https://trello.com/c/y3EHgd1L)
-| Mock Use Case 4 - Dev      | -- Incomplete --             |  [Trello Card](https://trello.com/c/IHCyFg3v)
+| Mock Use Case 3 - Dev      | -- Complete --             |  [Trello Card](https://trello.com/c/y3EHgd1L)
+
 
 
 <br>
