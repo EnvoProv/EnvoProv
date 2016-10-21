@@ -114,9 +114,10 @@ public class ClusterTest {
 		query.add("skuber");
 		response.add("Provide Password");
 		
-		query.add("*****");
+		query.add("skuber");
 		response.add("Environment");
 		
+		query.add("bye");
 		
 		Iterator<String> queryIterator = query.iterator();
 		Iterator<String> responseIterator = response.iterator();
@@ -124,25 +125,28 @@ public class ClusterTest {
 		while(queryIterator.hasNext()){
 
 			input = queryIterator.next();
-			reply = responseIterator.next();
-
+			
 			messageBot = driver.findElement(By.id("message-input"));
 			messageBot.sendKeys(input);
 			messageBot.sendKeys(Keys.RETURN);
 
 			driver.navigate().refresh();
-			//wait.until(ExpectedConditions.titleContains("envoprov"));
-			wait.until(ExpectedConditions.refreshed(ExpectedConditions.visibilityOfElementLocated(By.id("message-input"))));
+			wait.until(ExpectedConditions.titleContains("envoprov"));
+			wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.id("message-input"))));
+			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 			wait.withTimeout(15, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
 
+			Thread.sleep(2000);
 			msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
-
+			if(input.equalsIgnoreCase("bye")) break;
+			reply = responseIterator.next();
+			
 			if( msg == null)
 			{
 				fail("fail_null@"+reply);
 			}
 
-			System.out.println("\n\n"+msg.getText().toLowerCase()+"\n"+(reply.toLowerCase()));
+			//System.out.println("\n\n"+msg.getText().toLowerCase()+"\n"+(reply.toLowerCase()));
 			if( (msg.getText().toLowerCase()).indexOf(reply.toLowerCase()) > -1){
 				continue;
 			}else
@@ -152,8 +156,9 @@ public class ClusterTest {
 				messageBot.sendKeys(Keys.RETURN);
 
 				driver.navigate().refresh();
-				//wait.until(ExpectedConditions.titleContains("envoprov"));
+				wait.until(ExpectedConditions.titleContains("envoprov"));
 				wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.id("message-input"))));
+				driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 				wait.withTimeout(15, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
 
 				msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
@@ -172,8 +177,8 @@ public class ClusterTest {
 	}
 
 
-	//@Test
-	public void usecase1Failure() throws Exception
+	@Test
+	public void usecase2Failure() throws Exception
 	{
 		WebDriver driver = this.setUp();
 		driver.get("https://csc510-project-group.slack.com/");
@@ -189,7 +194,6 @@ public class ClusterTest {
 		// Type in our test user login info.
 		email.sendKeys(username);
 		pw.sendKeys(password);
-
 
 		// Click
 		WebElement signin = driver.findElement(By.id("signin_btn"));
@@ -215,43 +219,37 @@ public class ClusterTest {
 		query.add("Hi");
 		response.add("Hi");
 
-		query.add("Create a single VM for LAMP stack");
-		response.add("I dont have your credentials. Can you provide them?");
+		query.add("Create a cluster for LAMP stack");
+		response.add("Sure! How many VM's do you want?");
 
-		query.add("yeah");
-		response.add("Provide Username");
-
-		query.add("skuber");
-		response.add("Provide password");
-
-		query.add("***");
-		response.add("Provide Username");
-
-		query.add("skuber");
-		response.add("Provide Password");
-
-		query.add("*****");
-		response.add("Here it is!");
-
+		query.add("14");
+		response.add("Sorry I need it to be 4, 8 or 16. Please enter a valid value");
+		
+		query.add("bye");
+		
+		
 		Iterator<String> queryIterator = query.iterator();
 		Iterator<String> responseIterator = response.iterator();
 
 		while(queryIterator.hasNext()){
 
 			input = queryIterator.next();
-			reply = responseIterator.next();
-
+			
 			messageBot = driver.findElement(By.id("message-input"));
 			messageBot.sendKeys(input);
 			messageBot.sendKeys(Keys.RETURN);
 
 			driver.navigate().refresh();
-			//wait.until(ExpectedConditions.titleContains("envoprov"));
+			wait.until(ExpectedConditions.titleContains("envoprov"));
 			wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.id("message-input"))));
+			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 			wait.withTimeout(15, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
-
+			
+			Thread.sleep(2000);
 			msg = driver.findElement(By.xpath("(//span[@class='message_body'])[last()]"));
-
+			if(input.equalsIgnoreCase("bye")) break;
+			reply = responseIterator.next();
+			
 			if( msg == null)
 			{
 				fail("fail_null@"+reply);
@@ -267,7 +265,7 @@ public class ClusterTest {
 				messageBot.sendKeys(Keys.RETURN);
 
 				driver.navigate().refresh();
-				//wait.until(ExpectedConditions.titleContains("envoprov"));
+				wait.until(ExpectedConditions.titleContains("envoprov"));
 				wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.id("message-input"))));
 				wait.withTimeout(15, TimeUnit.SECONDS).ignoring(StaleElementReferenceException.class);
 
@@ -278,12 +276,12 @@ public class ClusterTest {
 
 				
 			}
-
-			driver.close();
-			driver.quit();
-			assertTrue(true);
 			
 		}
+		
+		driver.close();
+		driver.quit();
+		assertTrue(true);
 	}
 }
 
