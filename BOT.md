@@ -54,8 +54,16 @@ User must possess the credentials of cloud service provider - AWS, DO etc.
   [E1] Credentials are expired or incorrect. <br>
 	[E2] User doesn’t have access right of the VMs requested to be deleted. <br>
 
-# Mocking
+# Mocking Service Component
 The mock data that is used for bot interaction is in bot_logic/mockdata.json
+
+# Bot Implementation
+1. Platform Used: Slack
+2. Backend Implementation: Node.js
+3. Testing Platform: Selenium in Java
+
+# Task Tracking
+[Link to task tracking worksheet](https://github.com/EnvoProv/EnvoProv/blob/master/WORKSHEET.md)
 
 # Links of Screencasts:
 
