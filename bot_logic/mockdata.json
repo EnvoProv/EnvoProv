@@ -132,4 +132,52 @@
 		"Environment":"Test-Env"	
 		} ]
 	}
-}}
+	},
+	"instances1": [ {
+        
+        "User": "kpharas",
+        "Name": "CL001",
+        "Instances": [
+        {
+            "ID": "001",
+            "IP": "10.0.0.1",
+            "OS": "Ubuntu-10.04",
+            "Stack": "MySQL",
+            "Environment": "Test-Env"    
+        },
+        {
+        "ID": "002",
+        "IP": "10.0.0.2",
+        "OS": "Ubuntu-10.04",
+        "Stack": "AngularJS",
+        "Environment": "Test-Env"    
+        },
+        {
+        "ID": "003",
+        "IP": "10.0.0.3",
+        "OS": "Ubuntu-10.04",
+        "Stack":"Express, NodeJS",
+        "Environment":"Test-Env"    
+        } ]
+    },
+
+        {
+        "User": "skuber",
+        "Name": "CL002",
+        "Instances": [
+        {
+        "ID": "004",
+        "IP": "10.0.0.2",
+        "OS": "Ubuntu-10.04",
+        "Stack": "AngularJS",
+        "Environment": "Test-Env"    
+        },
+        {
+        "ID": "005",
+        "IP": "10.0.0.3",
+        "OS": "Ubuntu-10.04",
+        "Stack":"Express, NodeJS",
+        "Environment":"Test-Env"    
+        } ]
+    }]
+}

@@ -414,17 +414,21 @@ var listResources = function(bot, message) {
 	bot.api.users.info({user: message.user}, (error, response) => {
 		userName = response.user.name;
 		bot.startConversation(message, function(err, convo){
-			var instances = service.getUserInstances(userName, data.instances);
+			var instances = service.getUserInstances(userName, data.instances1);
 			if(instances == undefined)
 			{
 				bot.reply(message, "You have not provisioned any instances");
 			}
 			else
 			{
-				for(inst in instances){
-					var vm = instances[inst];
-					bot.reply(message, '\n Instance ID: '+vm.ID+' \nIP: '+vm.IP+' \nEnvironment: ' + vm.Environment+' \nStack: '+vm.Stack);
-				}
+					var cluster = service.getUserInstances(userName, data.instances);
+					convo.say("Here it is\n");
+					convo.say("Cluster ID :" + cluster.id);
+					for(inst in cluster.instances){
+						var vm = cluster.instances[inst];
+						convo.say('\n IP: '+vm.IP+' \nEnvironment: ' + vm.Environment);
+					}
+					convo.next();
 			}
 		});
 
@@ -480,7 +484,7 @@ botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'
 						{
 							pattern: bot.utterances.yes,
 							callback: function(response,convo){
-								if(!service.checkInstances(userName, data.instances, id_vms)){
+								if(!service.checkInstances(userName, data.instances1, id_vms)){
 									convo.say('Sorry the VM ID selected does not exists or you do not have access rights to it');
 									convo.next();
 								}else{
@@ -527,7 +531,7 @@ botcontroller.hears(['delete(.*)cluster','delete(.*)instance'],['direct_message'
 						credReady = true;
 						//console.log(id_vms+ "::");
 						if(service.checkNewCredentials(newUsername, newPassword, data.new_credentials)){
-							if(service.checkInstances(newUsername, data.instances, id_vms)) {
+							if(service.checkInstances(newUsername, data.instances1, id_vms)) {
 								convo.changeTopic('ask_confirmation');
 							} else {
 								bot.reply(message, 'Sorry the VM ID selected does not exists or you do not have access rights to it');
