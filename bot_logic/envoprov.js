@@ -401,7 +401,7 @@ var listResources = function(bot, message) {
     });
 }
 
-botcontroller.hears(['delete(.*)cluster', 'delete(.*)instance'], ['direct_message'], function(bot, message) {
+var deleteResource = function(bot, message) {
     var userName, num_vms;
     bot.api.users.info({
         user: message.user
@@ -521,7 +521,7 @@ botcontroller.hears(['delete(.*)cluster', 'delete(.*)instance'], ['direct_messag
             }
         });
     });
-});
+}
 
 var witbot = WitBot(witToken);
 
@@ -542,11 +542,9 @@ botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, me
     })
 
     wit.hears('create VM', 0.5, deployVm);
-
     wit.hears('create cluster', 0.5, createCluster);
-
     wit.hears('list resources', 0.5, listResources);
-
+    wit.hears('delete resource', 0.5, deleteResource);
     wit.otherwise(function(bot, message) {
         bot.reply(message, 'You are so intelligent, and I am so simple. I don\'t understnd')
     })
