@@ -1,6 +1,6 @@
 #Use Cases
 
-##1. Create a Stack on Selected Cloud.
+##1. Create a Stack on Single VM on Selected Cloud.
 
 1. **Preconditions**  
 User must have the credentials for the cloud account.
@@ -54,6 +54,10 @@ User must possess the credentials of cloud service provider - AWS, DO etc.
   [E1] Credentials are expired or incorrect. <br>
 	[E2] User doesn’t have access right of the VMs requested to be deleted. <br>
 
+### Mocking
+The mock data that is used for bot interaction is in bot_logic/mockdata.json
+
 ### Links of Screencasts:
 
-#### Use Case 3 - https://www.youtube.com/watch?v=F77IzumKjqY
+#### Use Case 3 - [Click here](https://www.youtube.com/watch?v=F77IzumKjqY)
+
