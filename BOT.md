@@ -59,5 +59,11 @@ The mock data that is used for bot interaction is in bot_logic/mockdata.json
 
 # Links of Screencasts:
 
-#### Use Case 3 - [Click here](https://www.youtube.com/watch?v=F77IzumKjqY)
+#### Use Case 1 :
+#####   Main Flow :      [Link](https://youtu.be/iVr9a_maj_U)    
+#####   Alternate Flow : [Link](https://youtu.be/mPk_p-O1o5Q)
+
+#### Use Case 2 : [Link](https://youtu.be/SUNay1bNkxY)
+
+#### Use Case 3 : [Link](https://www.youtube.com/watch?v=F77IzumKjqY)
 
