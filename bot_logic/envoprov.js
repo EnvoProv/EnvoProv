@@ -1,17 +1,14 @@
-//var SlackBot = require('slackbots');
 var data = require("./mockdata.json");
 var service = require("./mock_service.js");
-var sys = require('sys')
 var shell = require('child_process').exec;
 var WitBot = require('../witaibot/index.js')
+var Slack = require('slack-node');
+var slack = new Slack(process.env.slackAPIKey);
 var witToken = process.env.WitToken
 
 var botkit = require("botkit")
 var credReady = false,
     clusterRequested = false;
-var options = {
-    APIKey: process.env.slackAPIKey
-};
 var childProcess = require("child_process");
 
 var botcontroller = botkit.slackbot({
@@ -523,9 +520,18 @@ var deleteResource = function(bot, message) {
     });
 }
 
+botcontroller.on('file_shared', function(bot, content) {
+    console.log(content.file)
+    slack.api("files.info", {
+        file: content.file.id
+    }, function(err, response) {
+        console.log(response);
+    });
+});
 var witbot = WitBot(witToken);
 
 botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, message) {
+    console.log(message);
     var wit = witbot.process(message.text, bot, message);
 
     wit.hears('greeting', 0.5, function(bot, message, outcome) {
