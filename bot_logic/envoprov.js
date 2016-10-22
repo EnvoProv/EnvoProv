@@ -1,17 +1,14 @@
-//var SlackBot = require('slackbots');
 var data = require("./mockdata.json");
 var service = require("./mock_service.js");
-var sys = require('sys')
 var shell = require('child_process').exec;
 var WitBot = require('../witaibot/index.js')
+var Slack = require('slack-node');
+var slack = new Slack(process.env.slackAPIKey);
 var witToken = process.env.WitToken
 
 var botkit = require("botkit")
 var credReady = false,
     clusterRequested = false;
-var options = {
-    APIKey: process.env.slackAPIKey
-};
 var childProcess = require("child_process");
 
 var botcontroller = botkit.slackbot({
@@ -401,7 +398,7 @@ var listResources = function(bot, message) {
     });
 }
 
-botcontroller.hears(['delete(.*)cluster', 'delete(.*)instance'], ['direct_message'], function(bot, message) {
+var deleteResource = function(bot, message) {
     var userName, num_vms;
     bot.api.users.info({
         user: message.user
@@ -521,11 +518,20 @@ botcontroller.hears(['delete(.*)cluster', 'delete(.*)instance'], ['direct_messag
             }
         });
     });
-});
+}
 
+botcontroller.on('file_shared', function(bot, content) {
+    console.log(content.file)
+    slack.api("files.info", {
+        file: content.file.id
+    }, function(err, response) {
+        console.log(response);
+    });
+});
 var witbot = WitBot(witToken);
 
 botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, message) {
+    console.log(message);
     var wit = witbot.process(message.text, bot, message);
 
     wit.hears('greeting', 0.5, function(bot, message, outcome) {
@@ -542,11 +548,9 @@ botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, me
     })
 
     wit.hears('create VM', 0.5, deployVm);
-
     wit.hears('create cluster', 0.5, createCluster);
-
     wit.hears('list resources', 0.5, listResources);
-
+    wit.hears('delete resource', 0.5, deleteResource);
     wit.otherwise(function(bot, message) {
         bot.reply(message, 'You are so intelligent, and I am so simple. I don\'t understnd')
     })
