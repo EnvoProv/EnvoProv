@@ -27,6 +27,9 @@ var helpMessage = "Howdy!. No worries! I am here to help you!" +
     "\nExit current conversation: 'bye' OR 'Bye'";
 var messageQueue = [];
 
+// var awsInstanceCommand = "knife ec2 server create -I ami-2d39803a -f t2.micro --ssh-user ubuntu --region us-east-1 --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'"
+// awsInstanceCommand = "sh awsCreate.sh"
+// shell(awsInstanceCommand, function puts(error, stdout, stderr) { bot.reply(message, stdout) });
 
 botinstance.startRTM(function(err, bot, payload) {
     if (err) {
