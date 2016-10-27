@@ -1,5 +1,5 @@
 var data = require("./mockdata.json");
-var service = require("./mock_service.js");
+var service = require("./service.js");
 var shell = require('child_process').exec;
 var WitBot = require('../witaibot/index.js')
 var Slack = require('slack-node');
