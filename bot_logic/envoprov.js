@@ -2,6 +2,10 @@ var data = require("./mockdata.json");
 var service = require("./service.js");
 var shell = require('child_process').exec;
 var WitBot = require('../witaibot/index.js')
+var Slack_file_upload = require('node-slack-upload');
+var fs = require('fs');
+const path = require('path');
+var slack_file_upload = new Slack_file_upload(process.env.slackAPIKey);
 var Slack = require('slack-node');
 var slack = new Slack(process.env.slackAPIKey);
 var witToken = process.env.WitToken
@@ -184,7 +188,18 @@ var deployVm = function(bot, message) {
                         }
 
                     } else {
-                        bot.reply(message, "Configuration Missing");
+                        slack_file_upload.uploadFile({
+                            file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws.json')),
+                            filetype: '.json',
+                            title: 'AWS config format',
+                            initialComment: 'AWS config format'
+                        }, function(err, data) {
+                            if (err) {
+                                console.error(err);
+                            } else {
+                                convo.say("Your AWS configuration is missing, please download this json file, fill it up and send back to me! " + data.file.url_private_download);
+                            }
+                        });
                     }
                 });
         });
