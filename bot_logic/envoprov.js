@@ -1,5 +1,5 @@
 var data = require("./mockdata.json");
-var service = require("./mock_service.js");
+var service = require("./service.js");
 var shell = require('child_process').exec;
 var WitBot = require('../witaibot/index.js')
 var Slack = require('slack-node');
@@ -27,6 +27,9 @@ var helpMessage = "Howdy!. No worries! I am here to help you!" +
     "\nExit current conversation: 'bye' OR 'Bye'";
 var messageQueue = [];
 
+// var awsInstanceCommand = "knife ec2 server create -I ami-2d39803a -f t2.micro --ssh-user ubuntu --region us-east-1 --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'"
+// awsInstanceCommand = "sh awsCreate.sh"
+// shell(awsInstanceCommand, function puts(error, stdout, stderr) { bot.reply(message, stdout) });
 
 botinstance.startRTM(function(err, bot, payload) {
     if (err) {

@@ -1,0 +1,6 @@
+{
+  "image-id": "ami-2d39803a",
+  "region": "us-east-1" ,
+  "instance-type": "t2.micro",
+  "ssh-user": "ubuntu"
+}
