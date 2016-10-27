@@ -16,7 +16,7 @@
     "shelljs": "~0.7.4",
     "slack-node": "^0.1.8",
     "slackbots": "^0.5.1",
-    "witaitbot": "file:witaibot/"
+    "witaitbot": "file:witaibot/",
     "mongodb": "~2.2.11"
   }
 }

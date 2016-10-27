@@ -8,3 +8,4 @@ echo "mongodb-org-shell hold" | sudo dpkg --set-selections
 echo "mongodb-org-mongos hold" | sudo dpkg --set-selections
 echo "mongodb-org-tools hold" | sudo dpkg --set-selections
 sudo service mongod start
+nohup mongod --dbpath bot_logic/data
