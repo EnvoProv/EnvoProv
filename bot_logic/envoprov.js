@@ -63,7 +63,7 @@ var deployVm = function(bot, message) {
         bot.startConversation(message, function(err, convo) {
 
             if (techStack == null) {
-                convo.ask('Sure! But I need some more information. Which technology stack do you want? LAMP , MEAN or LEMP', [{
+                convo.ask('Which technology stack do you want installed on the VM? LAMP , MEAN or LEMP', [{
                     pattern: '[a-z][A-Z][^bye]',
                     callback: function(response, convo) {
                         techStack = response.text;
@@ -91,6 +91,16 @@ var deployVm = function(bot, message) {
                     }
                 }]);
             }
+
+            service.isConfigurationInformationAvailable(userName,
+                function(isAvailable) {
+                    if (isAvailable) {
+                        bot.reply(message, "Configuration Available");
+                    } else {
+                        bot.reply(message, "Configuration Missing");
+                    }
+                });
+
 
             if (service.areCredentialsPresent(userName, data.credentials)) {
                 convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?', [{
@@ -127,7 +137,6 @@ var deployVm = function(bot, message) {
                     }
                 }]);
             } else {
-
                 convo.addQuestion('Provide Username', function(response, convo) {
                     newUsername = response.text;
                     convo.changeTopic('ask_password');
@@ -179,10 +188,7 @@ var deployVm = function(bot, message) {
                         convo.next();
                     }
                 }]);
-
-
             }
-
         });
     });
 }

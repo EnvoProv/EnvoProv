@@ -1,3 +1,34 @@
+var MongoClient = require('mongodb').MongoClient
+
+function getMongoConnection(db_processing) {
+    var url = 'mongodb://localhost:27017/envoprov';
+    MongoClient.connect(url, function(err, db) {
+        if (err) console.log(err)
+            //db = MongoClient.db('envoprov');
+        db.createCollection('configurations', function(err, collection) {});
+        db_processing(db);
+    });
+}
+
+function isConfigurationInformationAvailable(userid, nextFunction) {
+    getMongoConnection(function(db) {
+        console.log("db: ", db)
+        configurations = db.collection("configurations")
+        configurations.find({
+            userid: userid
+        }).toArray(function(err, items) {
+            if (items.length == 0) {
+                db.close();
+                nextFunction(false);
+            } else {
+                db.close();
+                nextFunction(true);
+            }
+        })
+    });
+}
+
+
 function areCredentialsPresent(username, credentials) {
     var found = false;
     credentials.forEach(function(cred, index) {
@@ -63,6 +94,7 @@ function canProvision(username, num_vms, credentials) {
 
 }*/
 
+exports.isConfigurationInformationAvailable = isConfigurationInformationAvailable;
 exports.areCredentialsPresent = areCredentialsPresent;
 exports.checkNewCredentials = checkNewCredentials;
 exports.getUserInstances = getUserInstances;

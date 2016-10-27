@@ -24,7 +24,6 @@ function Witbot(witToken) {
         args.shift()
         wit.message(text, {})
             .then((res) => {
-                console.log("Ithe aloy");
                 // only consider the 1st outcome
                 if (res.entities.intent && res.entities.intent.length > 0) {
                     var outcome = res.entities.intent[0]
