@@ -30,6 +30,19 @@ function isConfigurationInformationAvailable(username, nextFunction) {
     });
 }
 
+function getUserConfiguration(username, nextFunction) {
+    getMongoConnection(function(db) {
+        configurations = db.collection("configurations")
+        configurations.find({
+            userid: username
+        }).toArray(function(err, items) {
+            console.log(items[0])
+            db.close();
+            nextFunction(items[0]);
+        })
+    });
+}
+
 function storeAWSConfigurationInformation(userid, configurations, nextFunction) {
     getMongoConnection(function(db) {
         console.log(db)
@@ -131,6 +144,7 @@ function canProvision(username, num_vms, credentials) {
 
 }*/
 
+exports.getUserConfiguration = getUserConfiguration
 exports.storeAWSCredentialInformation = storeAWSCredentialInformation
 exports.storeAWSConfigurationInformation = storeAWSConfigurationInformation
 exports.isConfigurationInformationAvailable = isConfigurationInformationAvailable;

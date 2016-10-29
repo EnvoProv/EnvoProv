@@ -58,15 +58,15 @@ botcontroller.hears(['help'], ['direct_message'], function(bot, message) {
 
 function askForTechnologyStack(userInfo, convo, bot, message) {
     if (userInfo.techStack == null) {
-        convo.ask('Which technology stack do you want installed on the VM? LAMP , MEAN or LEMP', [{
+        convo.ask('Which technology stack do you want installed on the VM? Apache, LAMP , MEAN or LEMP', [{
             pattern: '[a-z][A-Z][^bye]',
             callback: function(response, convo) {
                 userInfo.techStack = response.text;
                 console.log("Inside ...")
-                var proper_response = includes(["LAMP", "MEAN", "LEMP"], response.text)
+                var proper_response = includes(["LAMP", "MEAN", "LEMP", "Apache"], response.text)
                 console.log(proper_response)
                 if (!proper_response) {
-                    convo.say('Please choose between LAMP, MEAN and LEMP');
+                    convo.say('Please choose between Apache, LAMP, MEAN and LEMP');
                     convo.repeat();
                     convo.next();
                 } else {
@@ -98,42 +98,34 @@ function askForTechnologyStack(userInfo, convo, bot, message) {
     }
 }
 
+function parse(str) {
+    var args = [].slice.call(arguments, 1),
+        i = 0;
+
+    return str.replace(/%s/g, function() {
+        return args[i++];
+    });
+}
+
 function handleCredentials(userInfo, convo, bot, message) {
     service.areCredentialsPresent(userInfo.userName, function(isPresent) {
         if (isPresent) {
-            convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?', [{
-                pattern: bot.utterances.yes,
-                callback: function(response, convo) {
-                    var vm = data.single_vm;
-                    convo.say('Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
-                    convo.next();
-                }
-            }, {
-                pattern: bot.utterances.no,
-                callback: function(response, convo) {
-                    convo.say('Ok. Please provide new credentials');
-                    convo.next();
-                }
-            }, {
-                pattern: 'bye',
-                callback: function(response, convo) {
-                    bot.reply(message, "Okay! Hope I helped");
-                    convo.stop();
-                }
-            }, {
-                pattern: 'help',
-                callback: function(response, convo) {
-                    bot.reply(message, helpMessage);
-                    convo.stop();
-                }
-            }, {
-                default: true,
-                callback: function(response, convo) {
-                    convo.say('I did not understand your response. Please say yes or no');
-                    convo.repeat();
-                    convo.next();
-                }
-            }]);
+            service.getUserConfiguration(userInfo.userName, function(configuration) {
+                console.log(configuration["image-id"])
+                console.log(configuration["instance-type"])
+                console.log(configuration["region"])
+                console.log(configuration["ssh-user"])
+                var awsInstanceCommand = parse("knife ec2 server create -I %s -f %s --ssh-user %s --region %s --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'",
+                        configuration["image-id"], configuration["instance-type"], configuration["ssh-user"], configuration["region"])
+                    //awsInstanceCommand = "sh awsCreate.sh"
+                convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!")
+                shell(awsInstanceCommand, function puts(error, stdout, stderr) {
+                    console.log(error)
+                    console.log(stdout)
+                    console.log(stderr)
+                    bot.reply(message, stdout)
+                });
+            });
         } else {
             slack_file_upload.uploadFile({
                 file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws_credentials.json')),
