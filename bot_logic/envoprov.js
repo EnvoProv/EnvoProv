@@ -110,10 +110,6 @@ function parse(str) {
 function deployVirtualMachine(username, convo, bot, message) {
     console.log(username)
     service.getUserConfiguration(username, function(configuration) {
-        // console.log(configuration["image-id"])
-        // console.log(configuration["instance-type"])
-        // console.log(configuration["region"])
-        // console.log(configuration["ssh-user"])
         var awsInstanceCommand = parse("knife ec2 server create -I %s -f %s --ssh-user %s --region %s --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'",
             configuration["image-id"], configuration["instance-type"], configuration["ssh-user"], configuration["region"])
         convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!")
@@ -160,6 +156,7 @@ function checkPrivateKeyFile(username, convo, bot, message) {
 function handleCredentials(userInfo, convo, bot, message) {
     service.areCredentialsPresent(userInfo.userName, function(isPresent, username) {
         if (isPresent) {
+            convo.say("I have your AWS credentials")
             checkPrivateKeyFile(username, convo, bot, message);
         } else {
             slack_file_upload.uploadFile({
@@ -254,7 +251,7 @@ var deployVm = function(bot, message) {
             service.isConfigurationInformationAvailable(userInfo.userName,
                 function(isAvailable) {
                     if (isAvailable) {
-                        convo.say("Configuration Available");
+                        convo.say("I have your AWS Configuration");
                         askForTechnologyStack(userInfo, convo, bot, message);
                     } else {
                         askForConfiguration(userInfo, convo, bot, message);
