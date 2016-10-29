@@ -88,93 +88,95 @@ function askForTechnologyStack(userInfo, convo, bot, message) {
 }
 
 function handleCredentials(userInfo, convo, bot, message) {
-    if (service.areCredentialsPresent(userInfo.userName)) {
-        convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?', [{
-            pattern: bot.utterances.yes,
-            callback: function(response, convo) {
-                var vm = data.single_vm;
-                convo.say('Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
-                convo.next();
-            }
-        }, {
-            pattern: bot.utterances.no,
-            callback: function(response, convo) {
-                convo.say('Ok. Please provide new credentials');
-                convo.next();
-            }
-        }, {
-            pattern: 'bye',
-            callback: function(response, convo) {
-                bot.reply(message, "Okay! Hope I helped");
-                convo.stop();
-            }
-        }, {
-            pattern: 'help',
-            callback: function(response, convo) {
-                bot.reply(message, helpMessage);
-                convo.stop();
-            }
-        }, {
-            default: true,
-            callback: function(response, convo) {
-                convo.say('I did not understand your response. Please say yes or no');
-                convo.repeat();
-                convo.next();
-            }
-        }]);
-    } else {
-        convo.addQuestion('Provide Username', function(response, convo) {
-            newUsername = response.text;
-            convo.changeTopic('ask_password');
-        }, {}, 'ask_username');
+    service.areCredentialsPresent(userInfo.userName, function(isPresent) {
+        if (isPresent) {
+            convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?', [{
+                pattern: bot.utterances.yes,
+                callback: function(response, convo) {
+                    var vm = data.single_vm;
+                    convo.say('Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
+                    convo.next();
+                }
+            }, {
+                pattern: bot.utterances.no,
+                callback: function(response, convo) {
+                    convo.say('Ok. Please provide new credentials');
+                    convo.next();
+                }
+            }, {
+                pattern: 'bye',
+                callback: function(response, convo) {
+                    bot.reply(message, "Okay! Hope I helped");
+                    convo.stop();
+                }
+            }, {
+                pattern: 'help',
+                callback: function(response, convo) {
+                    bot.reply(message, helpMessage);
+                    convo.stop();
+                }
+            }, {
+                default: true,
+                callback: function(response, convo) {
+                    convo.say('I did not understand your response. Please say yes or no');
+                    convo.repeat();
+                    convo.next();
+                }
+            }]);
+        } else {
+            convo.addQuestion('Provide Username', function(response, convo) {
+                newUsername = response.text;
+                convo.changeTopic('ask_password');
+            }, {}, 'ask_username');
 
-        convo.addQuestion('Provide password', function(response, convo) {
-            newPassword = response.text;
-            credReady = true;
-            if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
-                bot.reply(message, 'Thanks!. I will now provision the VM for you');
-                var vm = data.single_vm;
-                bot.reply(message, 'Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
-                convo.stop();
-            } else {
-                bot.reply(message, 'Wrong credentials. Try again!');
-                convo.changeTopic('ask_username');
-            }
-        }, {}, 'ask_password');
+            convo.addQuestion('Provide password', function(response, convo) {
+                newPassword = response.text;
+                credReady = true;
+                if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
+                    bot.reply(message, 'Thanks!. I will now provision the VM for you');
+                    var vm = data.single_vm;
+                    bot.reply(message, 'Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
+                    convo.stop();
+                } else {
+                    bot.reply(message, 'Wrong credentials. Try again!');
+                    convo.changeTopic('ask_username');
+                }
+            }, {}, 'ask_password');
 
-        convo.ask('I dont have your credentials. Can you provide them? Say yes or no', [{
-            pattern: bot.utterances.yes,
-            callback: function(response, convo) {
-                convo.changeTopic('ask_username');
-                convo.next();
-            }
-        }, {
-            pattern: bot.utterances.no,
-            callback: function(response, convo) {
-                bot.reply(message, "Oops! I will need you credentials to set up your VM(s). Ask me again when you have then. Bye!!");
-                convo.stop();
-            }
-        }, {
-            pattern: 'bye',
-            callback: function(response, convo) {
-                bot.reply(message, "Okay! Hope I helped");
-                convo.stop();
-            }
-        }, {
-            pattern: 'help',
-            callback: function(response, convo) {
-                bot.reply(message, helpMessage);
-                convo.stop();
-            }
-        }, {
-            default: true,
-            callback: function(response, convo) {
-                convo.say('I didnt understand your response');
-                convo.repeat();
-                convo.next();
-            }
-        }]);
-    }
+            convo.ask('I dont have your credentials. Can you provide them? Say yes or no', [{
+                pattern: bot.utterances.yes,
+                callback: function(response, convo) {
+                    convo.changeTopic('ask_username');
+                    convo.next();
+                }
+            }, {
+                pattern: bot.utterances.no,
+                callback: function(response, convo) {
+                    bot.reply(message, "Oops! I will need you credentials to set up your VM(s). Ask me again when you have then. Bye!!");
+                    convo.stop();
+                }
+            }, {
+                pattern: 'bye',
+                callback: function(response, convo) {
+                    bot.reply(message, "Okay! Hope I helped");
+                    convo.stop();
+                }
+            }, {
+                pattern: 'help',
+                callback: function(response, convo) {
+                    bot.reply(message, helpMessage);
+                    convo.stop();
+                }
+            }, {
+                default: true,
+                callback: function(response, convo) {
+                    convo.say('I didnt understand your response');
+                    convo.repeat();
+                    convo.next();
+                }
+            }]);
+        }
+    });
 }
 
 function askForConfiguration(userInfo, convo, bot, message) {

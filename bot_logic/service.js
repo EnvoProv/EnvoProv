@@ -44,14 +44,22 @@ function storeAWSConfigurationInformation(userid, configurations, nextFunction) 
     })
 }
 
-function areCredentialsPresent(username, credentials) {
-    var found = false;
-    credentials.forEach(function(cred, index) {
-        if (cred.username === username)
-            found = true;
+function areCredentialsPresent(username, nextFunction) {
+    getMongoConnection(function(db) {
+        configurations = db.collection("credentials")
+        configurations.find({
+            userid: username
+        }).toArray(function(err, items) {
+            console.log(items)
+            if (items.length == 0) {
+                db.close();
+                nextFunction(false);
+            } else {
+                db.close();
+                nextFunction(true);
+            }
+        })
     });
-
-    return found;
 }
 
 function checkNewCredentials(username, password, newCredentials) {
