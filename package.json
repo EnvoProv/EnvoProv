@@ -11,14 +11,15 @@
   "dependencies": {
     "botkit": "^0.2.2",
     "child_process": "~1.0.2",
+    "download-file-sync": "^1.0.4",
     "interactive": "^0.1.9",
+    "mongodb": "~2.2.11",
+    "node-slack-upload": "~1.1.1",
     "node-wit": "^4.1.0",
     "shelljs": "~0.7.4",
     "slack-node": "^0.1.8",
     "slackbots": "^0.5.1",
-    "witaitbot": "file:witaibot/",
-    "mongodb": "~2.2.11",
-    "node-slack-upload": "~1.1.1",
-    "sync": "~0.2.5"
+    "sync": "~0.2.5",
+    "witaitbot": "file:witaibot/"
   }
 }

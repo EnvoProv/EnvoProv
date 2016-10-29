@@ -9,6 +9,7 @@ var slack_file_upload = new Slack_file_upload(process.env.slackAPIKey);
 var Slack = require('slack-node');
 var slack = new Slack(process.env.slackAPIKey);
 var Sync = require('sync')
+var request = require('request');
 var witToken = process.env.WitToken
 var askForTechnologyStack;
 var handleCredentials;
@@ -188,7 +189,6 @@ var deployVm = function(bot, message) {
         if (message.text.indexOf(stacks[len]) != -1)
             techStack = stacks[len];
     }
-
     bot.api.users.info({
         user: message.user
     }, (error, response) => {
@@ -214,18 +214,21 @@ var deployVm = function(bot, message) {
                                 fill it up and send back to me! " + data.file.url_private_download);
 
                                 botcontroller.on('file_shared', function(bot, content) {
-                                    console.log(content.file)
                                     slack.api("files.info", {
                                         file: content.file.id
                                     }, function(err, response) {
-                                        console.log(response);
-                                        if (response.file.name === "aws.json") {
-                                            userInfo.techStack = null;
-                                            bot.startConversation(message, function(err, convo) {
-                                                askForTechnologyStack(userInfo, convo, bot);
-                                                handleCredentials(userInfo, convo, bot);
-                                            });
-                                        }
+                                        bot.startConversation(message, function(err, convo) {
+                                            if (err) {
+                                                convo.say("Error occured: " + err);
+                                            } else {
+                                                if (response.file.name === "aws.json") {
+                                                    userInfo.techStack = null;
+                                                    console.log(response.content)
+                                                    askForTechnologyStack(userInfo, convo, bot);
+                                                    handleCredentials(userInfo, convo, bot);
+                                                }
+                                            }
+                                        });
                                     });
                                 });
                             }

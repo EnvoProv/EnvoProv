@@ -12,7 +12,6 @@ function getMongoConnection(db_processing) {
 
 function isConfigurationInformationAvailable(userid, nextFunction) {
     getMongoConnection(function(db) {
-        console.log("db: ", db)
         configurations = db.collection("configurations")
         configurations.find({
             userid: userid
