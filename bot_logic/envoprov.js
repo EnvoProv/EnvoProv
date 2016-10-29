@@ -10,6 +10,7 @@ var Slack = require('slack-node');
 var slack = new Slack(process.env.slackAPIKey);
 var Sync = require('sync')
 var request = require('request');
+var includes = require('array-includes');
 var witToken = process.env.WitToken
 
 var botkit = require("botkit")
@@ -61,8 +62,18 @@ function askForTechnologyStack(userInfo, convo, bot, message) {
             pattern: '[a-z][A-Z][^bye]',
             callback: function(response, convo) {
                 userInfo.techStack = response.text;
-                convo.say('Thanks!');
-                convo.next();
+                console.log("Inside ...")
+                var proper_response = includes(["LAMP", "MEAN", "LEMP"], response.text)
+                console.log(proper_response)
+                if (!proper_response) {
+                    convo.say('Please choose between LAMP, MEAN and LEMP');
+                    convo.repeat();
+                    convo.next();
+                } else {
+                    convo.say('Thanks!');
+                    convo.next();
+                    handleCredentials(userInfo, convo, bot, message);
+                }
             }
         }, {
             pattern: 'help',
@@ -219,7 +230,6 @@ var deployVm = function(bot, message) {
                     if (isAvailable) {
                         convo.say("Configuration Available");
                         askForTechnologyStack(userInfo, convo, bot, message);
-                        handleCredentials(userInfo, convo, bot, message);
                     } else {
                         askForConfiguration(userInfo, convo, bot, message);
                     }
