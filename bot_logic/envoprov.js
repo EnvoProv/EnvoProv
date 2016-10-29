@@ -194,12 +194,12 @@ var deployVm = function(bot, message) {
     }, (error, response) => {
         userInfo.userName = response.user.name;
         bot.startConversation(message, function(err, convo) {
-            service.isConfigurationInformationAvailable(userName,
+            service.isConfigurationInformationAvailable(userInfo.userName,
                 function(isAvailable) {
                     if (isAvailable) {
-                        convo.say(message, "Configuration Available");
-                        askForTechnologyStack(userInfo, convo);
-                        handleCredentials(userInfo, convo);
+                        convo.say("Configuration Available");
+                        askForTechnologyStack(userInfo, convo, bot);
+                        handleCredentials(userInfo, convo, bot);
                     } else {
                         slack_file_upload.uploadFile({
                             file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws.json')),
@@ -224,8 +224,10 @@ var deployVm = function(bot, message) {
                                                 if (response.file.name === "aws.json") {
                                                     userInfo.techStack = null;
                                                     console.log(response.content)
-                                                    askForTechnologyStack(userInfo, convo, bot);
-                                                    handleCredentials(userInfo, convo, bot);
+                                                    service.storeAWSConfigurationInformation(userInfo.userName, JSON.parse(response.content), function() {
+                                                        askForTechnologyStack(userInfo, convo, bot);
+                                                        handleCredentials(userInfo, convo, bot);
+                                                    })
                                                 }
                                             }
                                         });

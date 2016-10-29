@@ -5,17 +5,20 @@ function getMongoConnection(db_processing) {
     MongoClient.connect(url, function(err, db) {
         if (err) console.log(err)
             //db = MongoClient.db('envoprov');
-        db.createCollection('configurations', function(err, collection) {});
-        db_processing(db);
+        db.createCollection('configurations', function(err, collection) {
+            if (err) console.log(err)
+            db_processing(db);
+        });
     });
 }
 
-function isConfigurationInformationAvailable(userid, nextFunction) {
+function isConfigurationInformationAvailable(username, nextFunction) {
     getMongoConnection(function(db) {
         configurations = db.collection("configurations")
         configurations.find({
-            userid: userid
+            userid: username
         }).toArray(function(err, items) {
+            console.log(items)
             if (items.length == 0) {
                 db.close();
                 nextFunction(false);
@@ -27,6 +30,19 @@ function isConfigurationInformationAvailable(userid, nextFunction) {
     });
 }
 
+function storeAWSConfigurationInformation(userid, configurations, nextFunction) {
+    getMongoConnection(function(db) {
+        console.log(db)
+        configurations.userid = userid;
+        console.log(configurations)
+        db.collection("configurations").insert(configurations, function(err, result) {
+            console.log("Inserted ", result)
+            if (err) console.log(err)
+            db.close();
+            nextFunction();
+        });
+    })
+}
 
 function areCredentialsPresent(username, credentials) {
     var found = false;
@@ -93,6 +109,7 @@ function canProvision(username, num_vms, credentials) {
 
 }*/
 
+exports.storeAWSConfigurationInformation = storeAWSConfigurationInformation
 exports.isConfigurationInformationAvailable = isConfigurationInformationAvailable;
 exports.areCredentialsPresent = areCredentialsPresent;
 exports.checkNewCredentials = checkNewCredentials;
