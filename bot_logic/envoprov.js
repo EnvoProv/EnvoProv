@@ -8,7 +8,10 @@ const path = require('path');
 var slack_file_upload = new Slack_file_upload(process.env.slackAPIKey);
 var Slack = require('slack-node');
 var slack = new Slack(process.env.slackAPIKey);
+var Sync = require('sync')
 var witToken = process.env.WitToken
+var askForTechnologyStack;
+var handleCredentials;
 
 var botkit = require("botkit")
 var credReady = false,
@@ -30,6 +33,10 @@ var helpMessage = "Howdy!. No worries! I am here to help you!" +
     "\nStacks available: 'LAMP' OR 'MEAN' OR 'LEMP'" +
     "\nExit current conversation: 'bye' OR 'Bye'";
 var messageQueue = [];
+var userInfo = {
+    techStack: null,
+    userName: null
+}
 
 // var awsInstanceCommand = "knife ec2 server create -I ami-2d39803a -f t2.micro --ssh-user ubuntu --region us-east-1 --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'"
 // awsInstanceCommand = "sh awsCreate.sh"
@@ -49,6 +56,128 @@ botcontroller.hears(['help'], ['direct_message'], function(bot, message) {
     bot.reply(message, helpMessage);
 });
 
+askForTechnologyStack = function(userInfo, convo, bot) {
+    if (userInfo.techStack == null) {
+        convo.ask('Which technology stack do you want installed on the VM? LAMP , MEAN or LEMP', [{
+            pattern: '[a-z][A-Z][^bye]',
+            callback: function(response, convo) {
+                userInfo.techStack = response.text;
+                convo.say('Thanks!');
+                convo.next();
+            }
+        }, {
+            pattern: 'help',
+            callback: function(response, convo) {
+                bot.reply(message, helpMessage);
+                convo.stop();
+            }
+        }, {
+            pattern: 'bye',
+            callback: function(response, convo) {
+                bot.reply(message, "Okay! Hope I helped");
+                convo.stop();
+            }
+        }, {
+            default: true,
+            callback: function(response, convo) {
+                convo.say('I did not understand your response');
+                convo.repeat();
+                convo.next();
+            }
+        }]);
+    }
+}
+
+handleCredentials = function(userInfo, convo, bot) {
+    if (service.areCredentialsPresent(userInfo.userName, data.credentials)) {
+        convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?', [{
+            pattern: bot.utterances.yes,
+            callback: function(response, convo) {
+                var vm = data.single_vm;
+                convo.say('Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
+                convo.next();
+            }
+        }, {
+            pattern: bot.utterances.no,
+            callback: function(response, convo) {
+                convo.say('Ok. Please provide new credentials');
+                convo.next();
+            }
+        }, {
+            pattern: 'bye',
+            callback: function(response, convo) {
+                bot.reply(message, "Okay! Hope I helped");
+                convo.stop();
+            }
+        }, {
+            pattern: 'help',
+            callback: function(response, convo) {
+                bot.reply(message, helpMessage);
+                convo.stop();
+            }
+        }, {
+            default: true,
+            callback: function(response, convo) {
+                convo.say('I did not understand your response. Please say yes or no');
+                convo.repeat();
+                convo.next();
+            }
+        }]);
+    } else {
+        convo.addQuestion('Provide Username', function(response, convo) {
+            newUsername = response.text;
+            convo.changeTopic('ask_password');
+        }, {}, 'ask_username');
+
+        convo.addQuestion('Provide password', function(response, convo) {
+            newPassword = response.text;
+            credReady = true;
+            if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
+                bot.reply(message, 'Thanks!. I will now provision the VM for you');
+                var vm = data.single_vm;
+                bot.reply(message, 'Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
+                convo.stop();
+            } else {
+                bot.reply(message, 'Wrong credentials. Try again!');
+                convo.changeTopic('ask_username');
+            }
+        }, {}, 'ask_password');
+
+        convo.ask('I dont have your credentials. Can you provide them? Say yes or no', [{
+            pattern: bot.utterances.yes,
+            callback: function(response, convo) {
+                convo.changeTopic('ask_username');
+                convo.next();
+            }
+        }, {
+            pattern: bot.utterances.no,
+            callback: function(response, convo) {
+                bot.reply(message, "Oops! I will need you credentials to set up your VM(s). Ask me again when you have then. Bye!!");
+                convo.stop();
+            }
+        }, {
+            pattern: 'bye',
+            callback: function(response, convo) {
+                bot.reply(message, "Okay! Hope I helped");
+                convo.stop();
+            }
+        }, {
+            pattern: 'help',
+            callback: function(response, convo) {
+                bot.reply(message, helpMessage);
+                convo.stop();
+            }
+        }, {
+            default: true,
+            callback: function(response, convo) {
+                convo.say('I didnt understand your response');
+                convo.repeat();
+                convo.next();
+            }
+        }]);
+    }
+}
+
 var deployVm = function(bot, message) {
     var userName, newUsername, newPassword, techStack = null;
 
@@ -63,130 +192,14 @@ var deployVm = function(bot, message) {
     bot.api.users.info({
         user: message.user
     }, (error, response) => {
-        userName = response.user.name;
+        userInfo.userName = response.user.name;
         bot.startConversation(message, function(err, convo) {
             service.isConfigurationInformationAvailable(userName,
                 function(isAvailable) {
                     if (isAvailable) {
                         convo.say(message, "Configuration Available");
-                        if (techStack == null) {
-                            convo.ask('Which technology stack do you want installed on the VM? LAMP , MEAN or LEMP', [{
-                                pattern: '[a-z][A-Z][^bye]',
-                                callback: function(response, convo) {
-                                    techStack = response.text;
-                                    convo.say('Thanks!');
-                                    convo.next();
-                                }
-                            }, {
-                                pattern: 'help',
-                                callback: function(response, convo) {
-                                    bot.reply(message, helpMessage);
-                                    convo.stop();
-                                }
-                            }, {
-                                pattern: 'bye',
-                                callback: function(response, convo) {
-                                    bot.reply(message, "Okay! Hope I helped");
-                                    convo.stop();
-                                }
-                            }, {
-                                default: true,
-                                callback: function(response, convo) {
-                                    convo.say('I did not understand your response');
-                                    convo.repeat();
-                                    convo.next();
-                                }
-                            }]);
-                        }
-
-                        if (service.areCredentialsPresent(userName, data.credentials)) {
-                            convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?', [{
-                                pattern: bot.utterances.yes,
-                                callback: function(response, convo) {
-                                    var vm = data.single_vm;
-                                    convo.say('Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
-                                    convo.next();
-                                }
-                            }, {
-                                pattern: bot.utterances.no,
-                                callback: function(response, convo) {
-                                    convo.say('Ok. Please provide new credentials');
-                                    convo.next();
-                                }
-                            }, {
-                                pattern: 'bye',
-                                callback: function(response, convo) {
-                                    bot.reply(message, "Okay! Hope I helped");
-                                    convo.stop();
-                                }
-                            }, {
-                                pattern: 'help',
-                                callback: function(response, convo) {
-                                    bot.reply(message, helpMessage);
-                                    convo.stop();
-                                }
-                            }, {
-                                default: true,
-                                callback: function(response, convo) {
-                                    convo.say('I did not understand your response. Please say yes or no');
-                                    convo.repeat();
-                                    convo.next();
-                                }
-                            }]);
-                        } else {
-                            convo.addQuestion('Provide Username', function(response, convo) {
-                                newUsername = response.text;
-                                convo.changeTopic('ask_password');
-                            }, {}, 'ask_username');
-
-                            convo.addQuestion('Provide password', function(response, convo) {
-                                newPassword = response.text;
-                                credReady = true;
-                                if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
-                                    bot.reply(message, 'Thanks!. I will now provision the VM for you');
-                                    var vm = data.single_vm;
-                                    bot.reply(message, 'Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
-                                    convo.stop();
-                                } else {
-                                    bot.reply(message, 'Wrong credentials. Try again!');
-                                    convo.changeTopic('ask_username');
-                                }
-                            }, {}, 'ask_password');
-
-                            convo.ask('I dont have your credentials. Can you provide them? Say yes or no', [{
-                                pattern: bot.utterances.yes,
-                                callback: function(response, convo) {
-                                    convo.changeTopic('ask_username');
-                                    convo.next();
-                                }
-                            }, {
-                                pattern: bot.utterances.no,
-                                callback: function(response, convo) {
-                                    bot.reply(message, "Oops! I will need you credentials to set up your VM(s). Ask me again when you have then. Bye!!");
-                                    convo.stop();
-                                }
-                            }, {
-                                pattern: 'bye',
-                                callback: function(response, convo) {
-                                    bot.reply(message, "Okay! Hope I helped");
-                                    convo.stop();
-                                }
-                            }, {
-                                pattern: 'help',
-                                callback: function(response, convo) {
-                                    bot.reply(message, helpMessage);
-                                    convo.stop();
-                                }
-                            }, {
-                                default: true,
-                                callback: function(response, convo) {
-                                    convo.say('I didnt understand your response');
-                                    convo.repeat();
-                                    convo.next();
-                                }
-                            }]);
-                        }
-
+                        askForTechnologyStack(userInfo, convo);
+                        handleCredentials(userInfo, convo);
                     } else {
                         slack_file_upload.uploadFile({
                             file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws.json')),
@@ -197,7 +210,24 @@ var deployVm = function(bot, message) {
                             if (err) {
                                 console.error(err);
                             } else {
-                                convo.say("Your AWS configuration is missing, please download this json file, fill it up and send back to me! " + data.file.url_private_download);
+                                convo.say("Your AWS configuration is missing, please download this json file,\
+                                fill it up and send back to me! " + data.file.url_private_download);
+
+                                botcontroller.on('file_shared', function(bot, content) {
+                                    console.log(content.file)
+                                    slack.api("files.info", {
+                                        file: content.file.id
+                                    }, function(err, response) {
+                                        console.log(response);
+                                        if (response.file.name === "aws.json") {
+                                            userInfo.techStack = null;
+                                            bot.startConversation(message, function(err, convo) {
+                                                askForTechnologyStack(userInfo, convo, bot);
+                                                handleCredentials(userInfo, convo, bot);
+                                            });
+                                        }
+                                    });
+                                });
                             }
                         });
                     }
@@ -537,15 +567,6 @@ var deleteResource = function(bot, message) {
         });
     });
 }
-
-botcontroller.on('file_shared', function(bot, content) {
-    console.log(content.file)
-    slack.api("files.info", {
-        file: content.file.id
-    }, function(err, response) {
-        console.log(response);
-    });
-});
 var witbot = WitBot(witToken);
 
 botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, message) {

@@ -18,6 +18,7 @@
     "slackbots": "^0.5.1",
     "witaitbot": "file:witaibot/",
     "mongodb": "~2.2.11",
-    "node-slack-upload": "~1.1.1"
+    "node-slack-upload": "~1.1.1",
+    "sync": "~0.2.5"
   }
 }
