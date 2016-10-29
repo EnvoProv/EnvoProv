@@ -11,8 +11,6 @@ var slack = new Slack(process.env.slackAPIKey);
 var Sync = require('sync')
 var request = require('request');
 var witToken = process.env.WitToken
-var askForTechnologyStack;
-var handleCredentials;
 
 var botkit = require("botkit")
 var credReady = false,
@@ -57,7 +55,7 @@ botcontroller.hears(['help'], ['direct_message'], function(bot, message) {
     bot.reply(message, helpMessage);
 });
 
-askForTechnologyStack = function(userInfo, convo, bot) {
+function askForTechnologyStack(userInfo, convo, bot, message) {
     if (userInfo.techStack == null) {
         convo.ask('Which technology stack do you want installed on the VM? LAMP , MEAN or LEMP', [{
             pattern: '[a-z][A-Z][^bye]',
@@ -89,8 +87,8 @@ askForTechnologyStack = function(userInfo, convo, bot) {
     }
 }
 
-handleCredentials = function(userInfo, convo, bot) {
-    if (service.areCredentialsPresent(userInfo.userName, data.credentials)) {
+function handleCredentials(userInfo, convo, bot, message) {
+    if (service.areCredentialsPresent(userInfo.userName)) {
         convo.ask('I have your Amazon EC2 credentials. Should I use them to deploy this VM?', [{
             pattern: bot.utterances.yes,
             callback: function(response, convo) {
@@ -179,6 +177,45 @@ handleCredentials = function(userInfo, convo, bot) {
     }
 }
 
+function askForConfiguration(userInfo, convo, bot, message) {
+    slack_file_upload.uploadFile({
+        file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws.json')),
+        filetype: '.json',
+        title: 'AWS config format',
+        initialComment: 'AWS config format'
+    }, function(err, data) {
+        if (err) {
+            console.error(err);
+        } else {
+            convo.say("Your AWS configuration is missing, please download this json file,\
+          fill it up and send back to me! " + data.file.url_private_download);
+
+            botcontroller.on('file_shared', function(bot, content) {
+                slack.api("files.info", {
+                    file: content.file.id
+                }, function(err, response) {
+                    bot.startConversation(message, function(err, convo) {
+                        if (err) {
+                            convo.say("Error occured: " + err);
+                        } else {
+                            if (response.file.name === "aws.json") {
+                                userInfo.techStack = null;
+                                console.log(response.content)
+                                service.storeAWSConfigurationInformation(userInfo.userName, JSON.parse(response.content), function() {
+                                    askForTechnologyStack(userInfo, convo, bot);
+                                    handleCredentials(userInfo, convo, bot);
+                                })
+                            }
+                        }
+                    });
+                });
+            });
+        }
+    });
+}
+
+
+
 var deployVm = function(bot, message) {
     var userName, newUsername, newPassword, techStack = null;
 
@@ -198,43 +235,10 @@ var deployVm = function(bot, message) {
                 function(isAvailable) {
                     if (isAvailable) {
                         convo.say("Configuration Available");
-                        askForTechnologyStack(userInfo, convo, bot);
-                        handleCredentials(userInfo, convo, bot);
+                        askForTechnologyStack(userInfo, convo, bot, message);
+                        handleCredentials(userInfo, convo, bot, message);
                     } else {
-                        slack_file_upload.uploadFile({
-                            file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws.json')),
-                            filetype: '.json',
-                            title: 'AWS config format',
-                            initialComment: 'AWS config format'
-                        }, function(err, data) {
-                            if (err) {
-                                console.error(err);
-                            } else {
-                                convo.say("Your AWS configuration is missing, please download this json file,\
-                                fill it up and send back to me! " + data.file.url_private_download);
-
-                                botcontroller.on('file_shared', function(bot, content) {
-                                    slack.api("files.info", {
-                                        file: content.file.id
-                                    }, function(err, response) {
-                                        bot.startConversation(message, function(err, convo) {
-                                            if (err) {
-                                                convo.say("Error occured: " + err);
-                                            } else {
-                                                if (response.file.name === "aws.json") {
-                                                    userInfo.techStack = null;
-                                                    console.log(response.content)
-                                                    service.storeAWSConfigurationInformation(userInfo.userName, JSON.parse(response.content), function() {
-                                                        askForTechnologyStack(userInfo, convo, bot);
-                                                        handleCredentials(userInfo, convo, bot);
-                                                    })
-                                                }
-                                            }
-                                        });
-                                    });
-                                });
-                            }
-                        });
+                        askForConfiguration(userInfo, convo, bot, message);
                     }
                 });
         });
