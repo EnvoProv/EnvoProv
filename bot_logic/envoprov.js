@@ -124,57 +124,38 @@ function handleCredentials(userInfo, convo, bot, message) {
                 }
             }]);
         } else {
-            convo.addQuestion('Provide Username', function(response, convo) {
-                newUsername = response.text;
-                convo.changeTopic('ask_password');
-            }, {}, 'ask_username');
+            slack_file_upload.uploadFile({
+                file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws_credentials.json')),
+                filetype: '.json',
+                title: 'AWS credentials format',
+                initialComment: 'AWS credentials format'
+            }, function(err, data) {
+                if (err) convo.say("Error occured " + err)
+                convo.say("I don't have your AWS credentials, please download this json file,\
+        fill it up and send back to me! " + data.file.url_private_download);
 
-            convo.addQuestion('Provide password', function(response, convo) {
-                newPassword = response.text;
-                credReady = true;
-                if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
-                    bot.reply(message, 'Thanks!. I will now provision the VM for you');
-                    var vm = data.single_vm;
-                    bot.reply(message, 'Here it is!\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
-                    convo.stop();
-                } else {
-                    bot.reply(message, 'Wrong credentials. Try again!');
-                    convo.changeTopic('ask_username');
-                }
-            }, {}, 'ask_password');
+                botcontroller.on('file_shared', function(bot, content) {
+                    slack.api("files.info", {
+                        file: content.file.id
+                    }, function(err, response) {
+                        bot.startConversation(message, function(err, convo) {
+                            if (err) {
+                                convo.say("Error occured: " + err);
+                            } else {
+                                if (response.file.name === "aws_credentials.json") {
+                                    userInfo.techStack = null;
+                                    console.log(response.content)
+                                    service.storeAWSCredentialInformation(userInfo.userName, JSON.parse(response.content), function() {
+                                        //askForTechnologyStack(userInfo, convo, bot);
+                                        handleCredentials(userInfo, convo, bot);
+                                    })
+                                }
+                            }
+                        });
+                    });
+                });
+            });
 
-            convo.ask('I dont have your credentials. Can you provide them? Say yes or no', [{
-                pattern: bot.utterances.yes,
-                callback: function(response, convo) {
-                    convo.changeTopic('ask_username');
-                    convo.next();
-                }
-            }, {
-                pattern: bot.utterances.no,
-                callback: function(response, convo) {
-                    bot.reply(message, "Oops! I will need you credentials to set up your VM(s). Ask me again when you have then. Bye!!");
-                    convo.stop();
-                }
-            }, {
-                pattern: 'bye',
-                callback: function(response, convo) {
-                    bot.reply(message, "Okay! Hope I helped");
-                    convo.stop();
-                }
-            }, {
-                pattern: 'help',
-                callback: function(response, convo) {
-                    bot.reply(message, helpMessage);
-                    convo.stop();
-                }
-            }, {
-                default: true,
-                callback: function(response, convo) {
-                    convo.say('I didnt understand your response');
-                    convo.repeat();
-                    convo.next();
-                }
-            }]);
         }
     });
 }
@@ -269,7 +250,7 @@ var createCluster = function(bot, message) {
                     pattern: '[a-z][A-Z][^bye]',
                     callback: function(response, convo) {
                         techStack = response.text;
-                        convo.say('Thanks!');
+                        //convo.say('Thanks!');
                         convo.next();
                     }
                 }, {

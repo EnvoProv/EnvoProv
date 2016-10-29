@@ -44,6 +44,20 @@ function storeAWSConfigurationInformation(userid, configurations, nextFunction) 
     })
 }
 
+function storeAWSCredentialInformation(userid, configurations, nextFunction) {
+    getMongoConnection(function(db) {
+        console.log(db)
+        configurations.userid = userid;
+        console.log(configurations)
+        db.collection("credentials").insert(configurations, function(err, result) {
+            console.log("Inserted ", result)
+            if (err) console.log(err)
+            db.close();
+            nextFunction();
+        });
+    })
+}
+
 function areCredentialsPresent(username, nextFunction) {
     getMongoConnection(function(db) {
         configurations = db.collection("credentials")
@@ -117,6 +131,7 @@ function canProvision(username, num_vms, credentials) {
 
 }*/
 
+exports.storeAWSCredentialInformation = storeAWSCredentialInformation
 exports.storeAWSConfigurationInformation = storeAWSConfigurationInformation
 exports.isConfigurationInformationAvailable = isConfigurationInformationAvailable;
 exports.areCredentialsPresent = areCredentialsPresent;
