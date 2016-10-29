@@ -62,9 +62,9 @@ function askForTechnologyStack(userInfo, convo, bot, message) {
             pattern: '[a-z][A-Z][^bye]',
             callback: function(response, convo) {
                 userInfo.techStack = response.text;
-                console.log("Inside ...")
+                //console.log("Inside ...")
                 var proper_response = includes(["LAMP", "MEAN", "LEMP", "Apache"], response.text)
-                console.log(proper_response)
+                    //console.log(proper_response)
                 if (!proper_response) {
                     convo.say('Please choose between Apache, LAMP, MEAN and LEMP');
                     convo.repeat();
@@ -107,25 +107,60 @@ function parse(str) {
     });
 }
 
-function handleCredentials(userInfo, convo, bot, message) {
-    service.areCredentialsPresent(userInfo.userName, function(isPresent) {
+function deployVirtualMachine(username, convo, bot, message) {
+    console.log(username)
+    service.getUserConfiguration(username, function(configuration) {
+        // console.log(configuration["image-id"])
+        // console.log(configuration["instance-type"])
+        // console.log(configuration["region"])
+        // console.log(configuration["ssh-user"])
+        var awsInstanceCommand = parse("knife ec2 server create -I %s -f %s --ssh-user %s --region %s --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'",
+            configuration["image-id"], configuration["instance-type"], configuration["ssh-user"], configuration["region"])
+        convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!")
+        shell(awsInstanceCommand, function puts(error, stdout, stderr) {
+            console.log(error)
+            console.log(stdout)
+            console.log(stderr)
+            bot.reply(message, stdout)
+        });
+    });
+}
+
+function checkPrivateKeyFile(username, convo, bot, message) {
+    service.isAWSPrivateKeyPresent(username, function(isPresent, username) {
         if (isPresent) {
-            service.getUserConfiguration(userInfo.userName, function(configuration) {
-                console.log(configuration["image-id"])
-                console.log(configuration["instance-type"])
-                console.log(configuration["region"])
-                console.log(configuration["ssh-user"])
-                var awsInstanceCommand = parse("knife ec2 server create -I %s -f %s --ssh-user %s --region %s --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'",
-                        configuration["image-id"], configuration["instance-type"], configuration["ssh-user"], configuration["region"])
-                    //awsInstanceCommand = "sh awsCreate.sh"
-                convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!")
-                shell(awsInstanceCommand, function puts(error, stdout, stderr) {
-                    console.log(error)
-                    console.log(stdout)
-                    console.log(stderr)
-                    bot.reply(message, stdout)
+            deployVirtualMachine(username, convo, bot, message);
+        } else {
+            convo.say("Please upload your private key file");
+            botcontroller.on('file_shared', function(bot, content) {
+                slack.api("files.info", {
+                    file: content.file.id
+                }, function(err, response) {
+                    bot.startConversation(message, function(err, convo) {
+                        if (err) {
+                            convo.say("Error occured: " + err);
+                        } else {
+                            slack.api("files.delete", {
+                                file: content.file.id
+                            })
+                            var ext = response.file.name.substring(response.file.name.lastIndexOf(".") + 1)
+                            if (ext === "pem") {
+                                service.storeAWSPrivateKeyInformation(userInfo.userName, response.content, function() {
+                                    deployVirtualMachine(username, convo, bot, message);
+                                })
+                            }
+                        }
+                    });
                 });
             });
+        }
+    });
+}
+
+function handleCredentials(userInfo, convo, bot, message) {
+    service.areCredentialsPresent(userInfo.userName, function(isPresent, username) {
+        if (isPresent) {
+            checkPrivateKeyFile(username, convo, bot, message);
         } else {
             slack_file_upload.uploadFile({
                 file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws_credentials.json')),
@@ -147,9 +182,8 @@ function handleCredentials(userInfo, convo, bot, message) {
                             } else {
                                 if (response.file.name === "aws_credentials.json") {
                                     userInfo.techStack = null;
-                                    console.log(response.content)
+                                    //console.log(response.content)
                                     service.storeAWSCredentialInformation(userInfo.userName, JSON.parse(response.content), function() {
-                                        //askForTechnologyStack(userInfo, convo, bot);
                                         handleCredentials(userInfo, convo, bot);
                                     })
                                 }
@@ -186,7 +220,7 @@ function askForConfiguration(userInfo, convo, bot, message) {
                         } else {
                             if (response.file.name === "aws.json") {
                                 userInfo.techStack = null;
-                                console.log(response.content)
+                                //console.log(response.content)
                                 service.storeAWSConfigurationInformation(userInfo.userName, JSON.parse(response.content), function() {
                                     askForTechnologyStack(userInfo, convo, bot);
                                     handleCredentials(userInfo, convo, bot);
@@ -232,7 +266,7 @@ var deployVm = function(bot, message) {
 
 var createCluster = function(bot, message) {
     var userName, num_vms, newUsername, newPassword, techStack = null;
-    console.log(message.match);
+    //console.log(message.match);
     var stacks = ['LAMP', 'MEAN'];
     var len = stacks.length;
 
@@ -240,7 +274,7 @@ var createCluster = function(bot, message) {
         if (message.text.indexOf(stacks[len]) != -1)
             techStack = stacks[len];
     }
-    console.log(techStack);
+    //console.log(techStack);
     bot.api.users.info({
         user: message.user
     }, (error, response) => {
@@ -564,7 +598,7 @@ var deleteResource = function(bot, message) {
 var witbot = WitBot(witToken);
 
 botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, message) {
-    console.log(message);
+    //console.log(message);
     var wit = witbot.process(message.text, bot, message);
 
     wit.hears('greeting', 0.5, function(bot, message, outcome) {

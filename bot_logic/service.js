@@ -1,4 +1,6 @@
 var MongoClient = require('mongodb').MongoClient
+var fs = require('fs')
+var path = require('path');
 
 function getMongoConnection(db_processing) {
     var url = 'mongodb://localhost:27017/envoprov';
@@ -36,18 +38,35 @@ function getUserConfiguration(username, nextFunction) {
         configurations.find({
             userid: username
         }).toArray(function(err, items) {
-            console.log(items[0])
+            //console.log(items)
             db.close();
             nextFunction(items[0]);
         })
     });
 }
 
+function isAWSPrivateKeyPresent(username, callback) {
+    fs.stat("../private_keys/" + username + ".pem", function(err, stat) {
+        if (err == null) {
+            callback(true, username);
+        } else {
+            console.log(err)
+            callback(false, username);
+        }
+    })
+}
+
+function storeAWSPrivateKeyInformation(username, content, callback) {
+    fs.writeFile("../private_keys/" + username + ".pem", content, function() {
+        callback();
+    })
+}
+
 function storeAWSConfigurationInformation(userid, configurations, nextFunction) {
     getMongoConnection(function(db) {
-        console.log(db)
+        //console.log(db)
         configurations.userid = userid;
-        console.log(configurations)
+        //console.log(configurations)
         db.collection("configurations").insert(configurations, function(err, result) {
             console.log("Inserted ", result)
             if (err) console.log(err)
@@ -59,9 +78,9 @@ function storeAWSConfigurationInformation(userid, configurations, nextFunction) 
 
 function storeAWSCredentialInformation(userid, configurations, nextFunction) {
     getMongoConnection(function(db) {
-        console.log(db)
+        //console.log(db)
         configurations.userid = userid;
-        console.log(configurations)
+        //console.log(configurations)
         db.collection("credentials").insert(configurations, function(err, result) {
             console.log("Inserted ", result)
             if (err) console.log(err)
@@ -77,13 +96,13 @@ function areCredentialsPresent(username, nextFunction) {
         configurations.find({
             userid: username
         }).toArray(function(err, items) {
-            console.log(items)
+            //console.log(items)
             if (items.length == 0) {
                 db.close();
-                nextFunction(false);
+                nextFunction(false, username);
             } else {
                 db.close();
-                nextFunction(true);
+                nextFunction(true, username);
             }
         })
     });
@@ -144,6 +163,8 @@ function canProvision(username, num_vms, credentials) {
 
 }*/
 
+exports.isAWSPrivateKeyPresent = isAWSPrivateKeyPresent
+exports.storeAWSPrivateKeyInformation = storeAWSPrivateKeyInformation
 exports.getUserConfiguration = getUserConfiguration
 exports.storeAWSCredentialInformation = storeAWSCredentialInformation
 exports.storeAWSConfigurationInformation = storeAWSConfigurationInformation
@@ -153,4 +174,4 @@ exports.checkNewCredentials = checkNewCredentials;
 exports.getUserInstances = getUserInstances;
 exports.canProvision = canProvision;
 //exports.canDelete = canDelete;
-exports.checkInstances = checkInstances;
+exports.checkInstances = checkInstances;;
