@@ -110,15 +110,18 @@ function parse(str) {
 function deployVirtualMachine(username, convo, bot, message) {
     console.log(username)
     service.getUserConfiguration(username, function(configuration) {
-        var awsInstanceCommand = parse("knife ec2 server create -I %s -f %s --ssh-user %s --region %s --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'",
-            configuration["image-id"], configuration["instance-type"], configuration["ssh-user"], configuration["region"])
-        convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!")
-        shell(awsInstanceCommand, function puts(error, stdout, stderr) {
-            console.log(error)
-            console.log(stdout)
-            console.log(stderr)
-            bot.reply(message, stdout)
-        });
+        service.getPrivateKeyInformation(username, function(private_key_info) {
+            var awsInstanceCommand = parse("knife ec2 server create -I %s -f %s --ssh-user %s --aws-access-key-id %s --aws-secret-access-key %s --region %s --identity-file ~/.ssh/chef-keypair.pem --ssh-key %s -r 'recipe[apt], recipe[apache]'",
+                configuration["image-id"], configuration["instance-type"], configuration["ssh-user"],
+                configuration["AWSAccessKeyId"], configuration["AWSSecretKey"], configuration["region"], private_key_info.file_name)
+            convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!")
+            shell(awsInstanceCommand, function puts(error, stdout, stderr) {
+                console.log(error)
+                console.log(stdout)
+                console.log(stderr)
+                bot.reply(message, stdout)
+            });
+        })
     });
 }
 
@@ -141,9 +144,10 @@ function checkPrivateKeyFile(username, convo, bot, message) {
                             })
                             var ext = response.file.name.substring(response.file.name.lastIndexOf(".") + 1)
                             if (ext === "pem") {
-                                service.storeAWSPrivateKeyInformation(userInfo.userName, response.content, function() {
-                                    deployVirtualMachine(username, convo, bot, message);
-                                })
+                                service.storeAWSPrivateKeyInformation(userInfo.userName, response.file.name, response.content,
+                                    function() {
+                                        deployVirtualMachine(username, convo, bot, message);
+                                    })
                             }
                         }
                     });

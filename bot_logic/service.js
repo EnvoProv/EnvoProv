@@ -1,6 +1,7 @@
 var MongoClient = require('mongodb').MongoClient
 var fs = require('fs')
 var path = require('path');
+var exec = require('child_process').execSync
 
 function getMongoConnection(db_processing) {
     var url = 'mongodb://localhost:27017/envoprov';
@@ -33,33 +34,77 @@ function isConfigurationInformationAvailable(username, nextFunction) {
 }
 
 function getUserConfiguration(username, nextFunction) {
+
+    function getUserCredentials(db, configuration, username, callback) {
+        credentials = db.collection("credentials")
+        res = credentials.find({
+            userid: username
+        }).toArray(function(err, items_2) {
+            db.close();
+            credentials = items_2[0]
+            configuration.AWSAccessKeyId = credentials.AWSAccessKeyId
+            configuration.AWSSecretKey = credentials.AWSSecretKey
+            console.log(configuration)
+            nextFunction(configuration);
+        })
+    }
     getMongoConnection(function(db) {
         configurations = db.collection("configurations")
         configurations.find({
             userid: username
         }).toArray(function(err, items) {
-            //console.log(items)
-            db.close();
-            nextFunction(items[0]);
+            getUserCredentials(db, items[0], username, nextFunction);
         })
     });
 }
 
 function isAWSPrivateKeyPresent(username, callback) {
-    fs.stat("../private_keys/" + username + ".pem", function(err, stat) {
-        if (err == null) {
-            callback(true, username);
-        } else {
-            console.log(err)
-            callback(false, username);
-        }
+    getMongoConnection(function(db) {
+        db.collection("private_keys").find({
+            userid: username
+        }).toArray(function(err, items) {
+            if (items.length == 0) {
+                callback(false, username);
+            } else {
+                callback(true, username);
+            }
+        })
+    });
+}
+
+function storeAWSPrivateKeyInformation(username, filename, content, callback) {
+    exec("mkdir -p " + __dirname + "/../private_keys/" + username, function(err, stdout, stderr) {
+        console.log(err)
+    });
+    var private_key_path = __dirname + "/../private_keys/" + username + "/" + filename;
+    fs.writeFile(private_key_path, content, function(err) {
+        if (err) console.log(err)
+        exec('chmod 600 ' + private_key_path + "; cp " + private_key_path + " ~/.ssh/");
+        getMongoConnection(function(db) {
+            private_key_json = {
+                userid: username,
+                path: private_key_path,
+                file_name: filename.slice(0, -4)
+            }
+            configurations.userid = username;
+            db.collection("private_keys").insert(private_key_json, function(err, result) {
+                console.log("Inserted ", result)
+                if (err) console.log(err)
+                db.close();
+                callback();
+            });
+        })
     })
 }
 
-function storeAWSPrivateKeyInformation(username, content, callback) {
-    fs.writeFile("../private_keys/" + username + ".pem", content, function() {
-        callback();
-    })
+function getPrivateKeyInformation(username, callback) {
+    getMongoConnection(function(db) {
+        db.collection("private_keys").find({
+            userid: username
+        }).toArray(function(err, items) {
+            callback(items[0]);
+        })
+    });
 }
 
 function storeAWSConfigurationInformation(userid, configurations, nextFunction) {
@@ -162,13 +207,13 @@ function canProvision(username, num_vms, credentials) {
 	return found;
 
 }*/
-
-exports.isAWSPrivateKeyPresent = isAWSPrivateKeyPresent
-exports.storeAWSPrivateKeyInformation = storeAWSPrivateKeyInformation
+exports.getPrivateKeyInformation = getPrivateKeyInformation
 exports.getUserConfiguration = getUserConfiguration
 exports.storeAWSCredentialInformation = storeAWSCredentialInformation
 exports.storeAWSConfigurationInformation = storeAWSConfigurationInformation
-exports.isConfigurationInformationAvailable = isConfigurationInformationAvailable;
+exports.isConfigurationInformationAvailable = isConfigurationInformationAvailable
+exports.storeAWSPrivateKeyInformation = storeAWSPrivateKeyInformation
+exports.isAWSPrivateKeyPresent = isAWSPrivateKeyPresent
 exports.areCredentialsPresent = areCredentialsPresent;
 exports.checkNewCredentials = checkNewCredentials;
 exports.getUserInstances = getUserInstances;
