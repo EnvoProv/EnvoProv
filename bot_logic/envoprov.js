@@ -70,7 +70,6 @@ function askForTechnologyStack(userInfo, convo, bot, message) {
                     convo.repeat();
                     convo.next();
                 } else {
-                    convo.say('Thanks!');
                     convo.next();
                     handleCredentials(userInfo, convo, bot, message);
                 }
@@ -158,11 +157,14 @@ function checkPrivateKeyFile(username, convo, bot, message) {
 }
 
 function handleCredentials(userInfo, convo, bot, message) {
+    console.log("Inside handle credentials")
     service.areCredentialsPresent(userInfo.userName, function(isPresent, username) {
         if (isPresent) {
+            console.log("I have credentials")
             convo.say("I have your AWS credentials")
             checkPrivateKeyFile(username, convo, bot, message);
         } else {
+            console.log("Uploading credentials file")
             slack_file_upload.uploadFile({
                 file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws_credentials.json')),
                 filetype: '.json',
@@ -185,7 +187,7 @@ function handleCredentials(userInfo, convo, bot, message) {
                                     userInfo.techStack = null;
                                     //console.log(response.content)
                                     service.storeAWSCredentialInformation(userInfo.userName, JSON.parse(response.content), function() {
-                                        handleCredentials(userInfo, convo, bot);
+                                        handleCredentials(userInfo, convo, bot, message);
                                     })
                                 }
                             }
@@ -223,8 +225,8 @@ function askForConfiguration(userInfo, convo, bot, message) {
                                 userInfo.techStack = null;
                                 //console.log(response.content)
                                 service.storeAWSConfigurationInformation(userInfo.userName, JSON.parse(response.content), function() {
-                                    askForTechnologyStack(userInfo, convo, bot);
-                                    handleCredentials(userInfo, convo, bot);
+                                    askForTechnologyStack(userInfo, convo, bot, message);
+                                    //handleCredentials(userInfo, convo, bot);
                                 })
                             }
                         }
@@ -287,7 +289,6 @@ var createCluster = function(bot, message) {
                     pattern: '[a-z][A-Z][^bye]',
                     callback: function(response, convo) {
                         techStack = response.text;
-                        //convo.say('Thanks!');
                         convo.next();
                     }
                 }, {
