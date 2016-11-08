@@ -38,10 +38,6 @@ var userInfo = {
     userName: null
 }
 
-// var awsInstanceCommand = "knife ec2 server create -I ami-2d39803a -f t2.micro --ssh-user ubuntu --region us-east-1 --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'"
-// awsInstanceCommand = "sh awsCreate.sh"
-// shell(awsInstanceCommand, function puts(error, stdout, stderr) { bot.reply(message, stdout) });
-
 botinstance.startRTM(function(err, bot, payload) {
     if (err) {
         console.error("ERR :" + err);
@@ -57,44 +53,40 @@ botcontroller.hears(['help'], ['direct_message'], function(bot, message) {
 });
 
 function askForTechnologyStack(userInfo, convo, bot, message) {
-    if (userInfo.techStack == null) {
-        convo.ask('Which technology stack do you want installed on the VM? Apache, LAMP , MEAN or LEMP', [{
-            pattern: '[a-z][A-Z][^bye]',
-            callback: function(response, convo) {
-                userInfo.techStack = response.text;
-                //console.log("Inside ...")
-                var proper_response = includes(["LAMP", "MEAN", "LEMP", "Apache"], response.text)
-                    //console.log(proper_response)
-                if (!proper_response) {
-                    convo.say('Please choose between Apache, LAMP, MEAN and LEMP');
-                    convo.repeat();
-                    convo.next();
-                } else {
-                    convo.next();
-                    handleCredentials(userInfo, convo, bot, message);
-                }
-            }
-        }, {
-            pattern: 'help',
-            callback: function(response, convo) {
-                bot.reply(message, helpMessage);
-                convo.stop();
-            }
-        }, {
-            pattern: 'bye',
-            callback: function(response, convo) {
-                bot.reply(message, "Okay! Hope I helped");
-                convo.stop();
-            }
-        }, {
-            default: true,
-            callback: function(response, convo) {
-                convo.say('I did not understand your response');
+    convo.ask('Which technology stack do you want installed on the VM? Apache, LAMP , MEAN or LEMP', [{
+        pattern: '[a-z][A-Z][^bye]',
+        callback: function(response, convo) {
+            userInfo.techStack = response.text;
+            var proper_response = includes(["LAMP", "MEAN", "LEMP", "Apache"], response.text)
+            if (!proper_response) {
+                convo.say('Please choose between Apache, LAMP, MEAN and LEMP');
                 convo.repeat();
                 convo.next();
+            } else {
+                convo.next();
+                handleCredentials(userInfo, convo, bot, message);
             }
-        }]);
-    }
+        }
+    }, {
+        pattern: 'help',
+        callback: function(response, convo) {
+            bot.reply(message, helpMessage);
+            convo.stop();
+        }
+    }, {
+        pattern: 'bye',
+        callback: function(response, convo) {
+            bot.reply(message, "Okay! Hope I helped");
+            convo.stop();
+        }
+    }, {
+        default: true,
+        callback: function(response, convo) {
+            convo.say('I did not understand your response');
+            convo.repeat();
+            convo.next();
+        }
+    }]);
 }
 
 function parse(str) {
