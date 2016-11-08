@@ -38,10 +38,6 @@ var userInfo = {
     userName: null
 }
 
-// var awsInstanceCommand = "knife ec2 server create -I ami-2d39803a -f t2.micro --ssh-user ubuntu --region us-east-1 --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'"
-// awsInstanceCommand = "sh awsCreate.sh"
-// shell(awsInstanceCommand, function puts(error, stdout, stderr) { bot.reply(message, stdout) });
-
 botinstance.startRTM(function(err, bot, payload) {
     if (err) {
         console.error("ERR :" + err);
@@ -62,9 +58,7 @@ function askForTechnologyStack(userInfo, convo, bot, message) {
             pattern: '[a-z][A-Z][^bye]',
             callback: function(response, convo) {
                 userInfo.techStack = response.text;
-                //console.log("Inside ...")
                 var proper_response = includes(["LAMP", "MEAN", "LEMP", "Apache"], response.text)
-                    //console.log(proper_response)
                 if (!proper_response) {
                     convo.say('Please choose between Apache, LAMP, MEAN and LEMP');
                     convo.repeat();
