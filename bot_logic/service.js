@@ -137,11 +137,11 @@ function storeAWSCredentialInformation(userid, configurations, nextFunction) {
 
 function areCredentialsPresent(username, nextFunction) {
     getMongoConnection(function(db) {
+        console.log("Got mongo db connection")
         configurations = db.collection("credentials")
         configurations.find({
             userid: username
         }).toArray(function(err, items) {
-            //console.log(items)
             if (items.length == 0) {
                 db.close();
                 nextFunction(false, username);

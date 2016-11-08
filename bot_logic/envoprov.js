@@ -38,10 +38,6 @@ var userInfo = {
     userName: null
 }
 
-// var awsInstanceCommand = "knife ec2 server create -I ami-2d39803a -f t2.micro --ssh-user ubuntu --region us-east-1 --identity-file ~/.ssh/chef-keypair.pem -r 'recipe[apt], recipe[apache]'"
-// awsInstanceCommand = "sh awsCreate.sh"
-// shell(awsInstanceCommand, function puts(error, stdout, stderr) { bot.reply(message, stdout) });
-
 botinstance.startRTM(function(err, bot, payload) {
     if (err) {
         console.error("ERR :" + err);
@@ -57,45 +53,40 @@ botcontroller.hears(['help'], ['direct_message'], function(bot, message) {
 });
 
 function askForTechnologyStack(userInfo, convo, bot, message) {
-    if (userInfo.techStack == null) {
-        convo.ask('Which technology stack do you want installed on the VM? Apache, LAMP , MEAN or LEMP', [{
-            pattern: '[a-z][A-Z][^bye]',
-            callback: function(response, convo) {
-                userInfo.techStack = response.text;
-                //console.log("Inside ...")
-                var proper_response = includes(["LAMP", "MEAN", "LEMP", "Apache"], response.text)
-                    //console.log(proper_response)
-                if (!proper_response) {
-                    convo.say('Please choose between Apache, LAMP, MEAN and LEMP');
-                    convo.repeat();
-                    convo.next();
-                } else {
-                    convo.say('Thanks!');
-                    convo.next();
-                    handleCredentials(userInfo, convo, bot, message);
-                }
-            }
-        }, {
-            pattern: 'help',
-            callback: function(response, convo) {
-                bot.reply(message, helpMessage);
-                convo.stop();
-            }
-        }, {
-            pattern: 'bye',
-            callback: function(response, convo) {
-                bot.reply(message, "Okay! Hope I helped");
-                convo.stop();
-            }
-        }, {
-            default: true,
-            callback: function(response, convo) {
-                convo.say('I did not understand your response');
+    convo.ask('Which technology stack do you want installed on the VM? Apache, LAMP , MEAN or LEMP', [{
+        pattern: '[a-z][A-Z][^bye]',
+        callback: function(response, convo) {
+            userInfo.techStack = response.text;
+            var proper_response = includes(["LAMP", "MEAN", "LEMP", "Apache"], response.text)
+            if (!proper_response) {
+                convo.say('Please choose between Apache, LAMP, MEAN and LEMP');
                 convo.repeat();
                 convo.next();
+            } else {
+                convo.next();
+                handleCredentials(userInfo, convo, bot, message);
             }
-        }]);
-    }
+        }
+    }, {
+        pattern: 'help',
+        callback: function(response, convo) {
+            bot.reply(message, helpMessage);
+            convo.stop();
+        }
+    }, {
+        pattern: 'bye',
+        callback: function(response, convo) {
+            bot.reply(message, "Okay! Hope I helped");
+            convo.stop();
+        }
+    }, {
+        default: true,
+        callback: function(response, convo) {
+            convo.say('I did not understand your response');
+            convo.repeat();
+            convo.next();
+        }
+    }]);
 }
 
 function parse(str) {
@@ -158,11 +149,14 @@ function checkPrivateKeyFile(username, convo, bot, message) {
 }
 
 function handleCredentials(userInfo, convo, bot, message) {
+    console.log("Inside handle credentials")
     service.areCredentialsPresent(userInfo.userName, function(isPresent, username) {
         if (isPresent) {
+            console.log("I have credentials")
             convo.say("I have your AWS credentials")
             checkPrivateKeyFile(username, convo, bot, message);
         } else {
+            console.log("Uploading credentials file")
             slack_file_upload.uploadFile({
                 file: fs.createReadStream(path.join(__dirname, '../configurations_formats', 'aws_credentials.json')),
                 filetype: '.json',
@@ -185,7 +179,7 @@ function handleCredentials(userInfo, convo, bot, message) {
                                     userInfo.techStack = null;
                                     //console.log(response.content)
                                     service.storeAWSCredentialInformation(userInfo.userName, JSON.parse(response.content), function() {
-                                        handleCredentials(userInfo, convo, bot);
+                                        handleCredentials(userInfo, convo, bot, message);
                                     })
                                 }
                             }
@@ -223,8 +217,8 @@ function askForConfiguration(userInfo, convo, bot, message) {
                                 userInfo.techStack = null;
                                 //console.log(response.content)
                                 service.storeAWSConfigurationInformation(userInfo.userName, JSON.parse(response.content), function() {
-                                    askForTechnologyStack(userInfo, convo, bot);
-                                    handleCredentials(userInfo, convo, bot);
+                                    askForTechnologyStack(userInfo, convo, bot, message);
+                                    //handleCredentials(userInfo, convo, bot);
                                 })
                             }
                         }
@@ -287,7 +281,6 @@ var createCluster = function(bot, message) {
                     pattern: '[a-z][A-Z][^bye]',
                     callback: function(response, convo) {
                         techStack = response.text;
-                        //convo.say('Thanks!');
                         convo.next();
                     }
                 }, {
