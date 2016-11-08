@@ -12,6 +12,7 @@ var Sync = require('sync')
 var request = require('request');
 var includes = require('array-includes');
 var witToken = process.env.WitToken
+var AWS = require('aws-sdk');
 
 var botkit = require("botkit")
 var credReady = false,
@@ -214,6 +215,7 @@ function askForConfiguration(userInfo, convo, bot, message) {
           fill it up and send back to me! " + data.file.url_private_download);
 
             botcontroller.on('file_shared', function(bot, content) {
+                console.log(content);
                 slack.api("files.info", {
                     file: content.file.id
                 }, function(err, response) {
@@ -221,6 +223,7 @@ function askForConfiguration(userInfo, convo, bot, message) {
                         if (err) {
                             convo.say("Error occured: " + err);
                         } else {
+                              console.log(response);
                             if (response.file.name === "aws.json") {
                                 userInfo.techStack = null;
                                 //console.log(response.content)
@@ -480,6 +483,29 @@ var listResources = function(bot, message) {
     });
 }
 
+var testDelete = function(){
+   console.log("In delete test");
+  
+   AWS.config.update({region:'us-east-1'});
+ 
+   var ec2 = new AWS.EC2(
+      {
+         accessKeyId: "AKIAIEECMHMPSVXNPUNQ" ,
+         secretAccessKey:"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" 
+      }
+   );
+
+   var params = {
+      InstanceIds: [ 
+         'i-0189cc9ef4317ff69',
+      ],
+      // DryRun: true || false
+   };
+   ec2.terminateInstances(params, function(err, data) {
+     if (err) console.log(err, err.stack); // an error occurred
+     else     console.log("Success\n" + data);           // successful response
+   });
+}
 var deleteResource = function(bot, message) {
     var userName, num_vms;
     bot.api.users.info({
@@ -619,7 +645,7 @@ botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, me
     wit.hears('create VM', 0.5, deployVm);
     wit.hears('create cluster', 0.5, createCluster);
     wit.hears('list resources', 0.5, listResources);
-    wit.hears('delete resource', 0.5, deleteResource);
+    wit.hears('delete resource', 0.5, testDelete);
     wit.otherwise(function(bot, message) {
         bot.reply(message, 'You are so intelligent, and I am so simple. I don\'t understnd')
     })
