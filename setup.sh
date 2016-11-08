@@ -1,5 +1,9 @@
 case $OSTYPE in
   linux*)
+    if (dpkg-query -W -f='${Status}\n' chef | head -n1 | awk '{print $3;}' | grep "installed") != "installed"; then
+      wget https://packages.chef.io/stable/ubuntu/12.04/chefdk_0.19.6-1_amd64.deb
+      sudo dpkg -i chefdk_0.19.6-1_amd64.deb
+    fi
     if ! hash mongod 2>/dev/null; then
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
       echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
