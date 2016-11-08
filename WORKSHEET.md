@@ -58,3 +58,39 @@
 | Selenium Test - Use Case 3      |  -- Completed --             |  [Trello Card](https://trello.com/c/ukpadEW7)
 | Enhance bot use case scenarios | -- Completed -- | [Trello Card](https://trello.com/c/fNXfdiXG)
 | Create Screencast video | -- Completed -- | [Trello Card](https://trello.com/c/sYpVZwSm)
+
+
+<br>
+<br>
+<br>
+**Week - 10/24 - 10/27**
+
+
+| Deliverable   | Item/Status   |  Issues/Tasks
+| ------------- | ------------  |  ------------
+| Create Workflow for single VM deployment on AWS | -- Completed -- |  [Trello Card](https://trello.com/c/Uk37nU42)
+| Chef Basic Integration with AWS | -- Completed -- | [Trello Card](https://trello.com/c/MqihHM8m)
+| Create a Chef Cookbook for Apache Installation | -- Completed-- | [Trello Card](https://trello.com/c/rSq9Q4EX)
+| Test the cookbook execution | --Completed-- | [Trello Card](https://trello.com/c/rSq9Q4EX)
+<br>
+<br>
+<br>
+**Week - 10/28 - 11/02**
+
+| Deliverable   | Item/Status   |  Issues/Tasks
+| ------------- | ------------  |  ------------
+| Create Chef Cookbooks for MongoDB, ExpressJS, AngularJS,<br> NodeJS, MySQL, PHP, Nginx  | --C-- | [Trello Card](https://trello.com/c/E4OF0M5b)
+| Test Chef cookbooks | --C--| [Trello Card](https://trello.com/c/E4OF0M5b)
+| Develop Workflow for Delete module | --P-- | [Trello Card](https://trello.com/c/Irr9b828)
+| Integrate Chef cookbook commands in bot logic | --P-- | [Trello Card]()
+<br>
+<br>
+<br>
+**Week - 11/05 - 11/09**
+
+| Deliverable   | Item/Status   |  Issues/Tasks
+| ------------- | ------------  |  ------------
+| Test Use Case - Create a VM/Cluster for given stack <br> _Use Case 1 and 2_| --P-- | [Trello Card](https://trello.com/c/JHezHIEd)
+| Test Use Case - Delete a VM/Cluster <br> _Use Case 3_| --P-- | [Trello Card](https://trello.com/c/XVDTEwDC)
+| Update Github repository | --P-- | &nbsp;
+| Create Screencast video | --P-- | &nbsp;
