@@ -103,7 +103,7 @@ function deployVirtualMachine(username, convo, bot, message) {
     console.log(username)
     service.getUserConfiguration(username, function(configuration) {
         service.getPrivateKeyInformation(username, function(private_key_info) {
-            var awsInstanceCommand = parse("knife ec2 server create -I %s -f %s --ssh-user %s --aws-access-key-id %s --aws-secret-access-key %s --region %s --identity-file ~/.ssh/chef-keypair.pem --ssh-key %s -r 'recipe[apt], recipe[apache]'",
+            var awsInstanceCommand = parse("knife ec2 server create -I %s -f %s --ssh-user %s --aws-access-key-id %s --aws-secret-access-key %s --region %s --identity-file ~/.ssh/SETest.pem --ssh-key %s -r 'recipe[apt], recipe[apache]'",
                 configuration["image-id"], configuration["instance-type"], configuration["ssh-user"],
                 configuration["AWSAccessKeyId"], configuration["AWSSecretKey"], configuration["region"], private_key_info.file_name)
             convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!")
@@ -484,8 +484,8 @@ var testDelete = function(){
  
    var ec2 = new AWS.EC2(
       {
-         accessKeyId: "AKIAIEECMHMPSVXNPUNQ" ,
-         secretAccessKey:"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" 
+         accessKeyId: ,
+         secretAccessKey: 
       }
    );
 
