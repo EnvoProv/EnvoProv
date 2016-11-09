@@ -22,5 +22,8 @@
     "slackbots": "^0.5.1",
     "sync": "~0.2.5",
     "witaitbot": "file:witaibot/"
+  },
+  "devDependencies": {
+    "jsonschema": "^1.1.0"
   }
 }
