@@ -491,7 +491,6 @@ var testDelete = function(){
 
    var params = {
       InstanceIds: [ 
-         'i-0189cc9ef4317ff69',
       ],
       // DryRun: true || false
    };
