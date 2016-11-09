@@ -63,7 +63,7 @@
 <br>
 <br>
 <br>
-**Week - 10/24 - 10/27**
+**Week - 10/24 - 10/28**
 
 
 | Deliverable   | Item/Status   |  Issues/Tasks
@@ -75,7 +75,7 @@
 <br>
 <br>
 <br>
-**Week - 10/28 - 11/02**
+**Week - 10/31 - 11/04**
 
 | Deliverable   | Item/Status   |  Issues/Tasks
 | ------------- | ------------  |  ------------
@@ -83,10 +83,11 @@
 | Test Chef cookbooks | --Completed--| [Trello Card](https://trello.com/c/E4OF0M5b)
 | Develop Workflow for Delete module | --Completed-- | [Trello Card](https://trello.com/c/Irr9b828)
 | Integrate Chef cookbook commands in bot logic | --Partial-- | [Trello Card]()
+| Create input JSON file validators | --Complete-- | [Trello Card](https://trello.com/c/jHoYqwMG)
 <br>
 <br>
 <br>
-**Week - 11/05 - 11/09**
+**Week - 11/07 - 11/11**
 
 | Deliverable   | Item/Status   |  Issues/Tasks
 | ------------- | ------------  |  ------------
