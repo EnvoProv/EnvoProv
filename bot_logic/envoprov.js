@@ -164,6 +164,8 @@ function handleCredentials(userInfo, convo, bot, message) {
                 title: 'AWS credentials format',
                 initialComment: 'AWS credentials format'
             }, function(err, data) {
+                // console.log("In uploadaed callback");
+                // console.log(convo);
                 if (err) convo.say("Error occured " + err)
                 convo.say("I don't have your AWS credentials, please download this json file,\
         fill it up and send back to me! " + data.file.url_private_download);
