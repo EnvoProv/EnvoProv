@@ -140,6 +140,8 @@ function deployVirtualMachine(username, convo, bot, message) {
                 else  {
                      console.log(data.Reservations[0].Instances[0]);
                      var newInstance = data.Reservations[0].Instances[0];
+                     convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!");
+                     convo.stop();
                      service.storeInstanceForUser(username, newInstance, function(instance){
                            bot.reply(message, "Your instance is ready");
                            bot.reply(message, "\n\nInstance Id : " + instance.instanceid + "\nPublic DNS Name: " + instance.publicdns + "\nPublic IP: " + instance.publicip);

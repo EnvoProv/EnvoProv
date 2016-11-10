@@ -79,7 +79,7 @@ function storeAWSPrivateKeyInformation(username, filename, content, callback) {
     var private_key_path = __dirname + "/../private_keys/" + username + "/" + filename;
     fs.writeFile(private_key_path, content, function(err) {
         if (err) console.log(err)
-        exec('chmod 600 ' + private_key_path + "; cp " + private_key_path + " ~/.ssh/");
+        exec('chmod 400 ' + private_key_path + "; cp " + private_key_path + " ~/.ssh/");
         getMongoConnection(function(db) {
             private_key_json = {
                 userid: username,
