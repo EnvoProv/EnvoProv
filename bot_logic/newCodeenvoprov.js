@@ -5,9 +5,9 @@ var WitBot = require('../witaibot/index.js')
 var Slack_file_upload = require('node-slack-upload');
 var fs = require('fs');
 const path = require('path');
-var slack_file_upload = new Slack_file_upload(process.env.slackAPIKey);
+var slack_file_upload = new Slack_file_upload(process.env.EnvoProvToken);
 var Slack = require('slack-node');
-var slack = new Slack(process.env.slackAPIKey);
+var slack = new Slack(process.env.EnvoProvToken);
 var Sync = require('sync')
 var request = require('request');
 var includes = require('array-includes');
@@ -27,7 +27,6 @@ var botinstance = botcontroller.spawn({
     token: process.env.EnvoProvToken
 });
 
-
 var helpMessage = "Howdy!. No worries! I am here to help you!" +
     "\nMake sure you have following keywords:" +
     "\nSingle VM: 'single'" +
@@ -38,7 +37,7 @@ var messageQueue = [];
 var userInfo = {
     techStack: null,
     userName: null,
-    quantity: false
+    cluster: false
 }
 
 botinstance.startRTM(function(err, bot, payload) {
@@ -56,7 +55,7 @@ botcontroller.hears(['help'], ['direct_message'], function(bot, message) {
 });
 
 function askForTechnologyStack(userInfo, convo, bot, message) {
-    if(!userInfo.quantity) {
+    if(!userInfo.cluster) {
         convo.ask('Which technology stack do you want installed on the VM? Apache, LAMP , MEAN or LEMP', [{
         pattern: '[a-z][A-Z][^bye]',
         callback: function(response, convo) {
@@ -138,6 +137,74 @@ function parse(str) {
     });
 }
 
+// function deployVirtualMachine(username, convo, bot, message) {
+//     console.log(username)
+//     service.getUserConfiguration(username, function(configuration) {
+//         service.getPrivateKeyInformation(username, function(private_key_info) {
+          
+//               AWS.config.update({
+//                   accessKeyId: configuration['AWSAccessKeyId'], secretAccessKey: configuration["AWSSecretKey"], region: configuration["region"]
+//               });
+//               var ec2 = new AWS.EC2(); 
+      
+//               var params = {
+//                  ImageId: 'ami-2d39803a', // Ubuntu 14.04 amd64
+//                  InstanceType: 't2.micro',
+//                  MinCount: 1,
+//                  MaxCount: 1,
+//                  KeyName: private_key_info.filename
+//               };
+
+//               convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!");
+//               convo.stop();
+//               ec2.runInstances(params, function(err, data) {
+//               if (err) {
+//                   console.log("Could not create instance", err);
+//                   return;
+//               }
+
+//               var instanceId = data.Instances[0].InstanceId;
+//               instance_ID = data.Instances[0].InstanceId;
+//               console.log("Created instance", instanceId);
+//               var params = {
+//                   DryRun: false,
+//                   InstanceIds: [
+//                       instance_ID
+//                       /* more items */
+//                   ]
+//               };
+//               ec2.waitFor('instanceRunning', params, function(err, data) {
+//                 if (err) console.log(err, err.stack); // an error occurred
+//                 else  {
+//                      console.log(data.Reservations[0].Instances[0]);
+//                      var newInstance = data.Reservations[0].Instances[0];
+//                      service.storeInstanceForUser(username, newInstance, function(instance){
+//                            bot.reply(message, "Your instance is ready");
+//                            bot.reply(message, "\n\nInstance Id : " + instance.instanceid + "\nPublic DNS Name: " + instance.publicdns + "\nPublic IP: " + instance.publicip);
+//                      })
+//                   }        
+//               });
+              
+
+//               }
+//               );
+
+              
+             
+//             // var awsInstanceCommand = parse("knife ec2 server create -I %s -f %s --ssh-user %s --aws-access-key-id %s --aws-secret-access-key %s --region %s --identity-file ~/.ssh/SETest.pem --ssh-key %s -r 'recipe[apt], recipe[apache]'",
+//             //     configuration["image-id"], configuration["instance-type"], configuration["ssh-user"],
+//             //     configuration["AWSAccessKeyId"], configuration["AWSSecretKey"], configuration["region"], private_key_info.file_name)
+//             // convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!")
+//             // shell(awsInstanceCommand, function puts(error, stdout, stderr) {
+//             //     console.log(error)
+//             //     console.log(stdout)
+//             //     console.log(stderr)
+//             //     bot.reply(message, stdout)
+//             // });
+//         })
+//     });
+// }
+
 function deployVirtualMachine(userInfo, username, convo, bot, message) {
     console.log(username)
     service.getUserConfiguration(username, function(configuration) {
@@ -193,10 +260,10 @@ function deployVirtualMachine(userInfo, username, convo, bot, message) {
     });
 }
 
-function checkPrivateKeyFile(userInfo, username, convo, bot, message) {
+function checkPrivateKeyFile(username, convo, bot, message) {
     service.isAWSPrivateKeyPresent(username, function(isPresent, username) {
         if (isPresent) {
-            deployVirtualMachine(userInfo, username, convo, bot, message);
+            deployVirtualMachine(userInfousername, convo, bot, message);
         } else {
             convo.say("Please upload your private key file");
             botcontroller.on('file_shared', function(bot, content) {
@@ -312,7 +379,7 @@ function askForConfiguration(userInfo, convo, bot, message) {
 
 
 
-var deployVm1 = function(bot, message) {
+var deployVm = function(bot, message) {
     var userName, newUsername, newPassword, techStack = null;
 
     var stacks = ['LAMP', 'MEAN'];
@@ -330,7 +397,7 @@ var deployVm1 = function(bot, message) {
             service.isConfigurationInformationAvailable(userInfo.userName,
                 function(isAvailable) {
                     if (isAvailable) {
-                        convo.say("I have your AWS Configuration buddy");
+                        convo.say("I have your AWS Configuration");
                         askForTechnologyStack(userInfo, convo, bot, message);
                     } else {
                         askForConfiguration(userInfo, convo, bot, message);
@@ -354,7 +421,7 @@ var createCluster = function(bot, message) {
         user: message.user
     }, (error, response) => {
         userInfo.userName = response.user.name;
-        userInfo.quantity = true;
+        userInfo.cluster = true;
         bot.startConversation(message, function(err, convo) {
             service.isConfigurationInformationAvailable(userInfo.userName,
                 function(isAvailable) {
@@ -376,44 +443,56 @@ var listResources = function(bot, message) {
     }, (error, response) => {
         userName = response.user.name;
         bot.startConversation(message, function(err, convo) {
-            var instances = service.getUserInstances(userName, data.instances1);
-            if (instances == undefined) {
-                bot.reply(message, "You have not provisioned any instances");
-            } else {
-                var cluster = service.getUserInstances(userName, data.instances);
-                convo.say("Here it is\n");
-                convo.say("Cluster ID :" + cluster.id);
-                for (inst in cluster.instances) {
-                    var vm = cluster.instances[inst];
-                    convo.say('\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
-                }
-                convo.next();
-            }
+            //var instances = service.getUserInstances(userName, data.instances1);
+            service.getUserInstances(userName, function(instances){
+               if (instances.length == 0) {
+                   bot.reply(message, "You have not provisioned any instances");
+               } else {
+                   // var cluster = service.getUserInstances(userName, data.instances);
+                   // convo.say("Here it is\n");
+                   // convo.say("Cluster ID :" + cluster.id);
+                   // for (inst in cluster.instances) {
+                   //     var vm = cluster.instances[inst];
+                   //     convo.say('\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
+                   // }
+                   // convo.next();
+                   convo.say("Here is the list of your instances: \n");
+                   instances.forEach(function(instance, index){
+                       convo.say("Instance ID: " + instance.instanceid); 
+                   });
+               }
+
+            });
         });
 
     });
 }
 
-/*var testDelete = function(){
+var testDelete = function(userid, configuration, id){
    console.log("In delete test");
   
    AWS.config.update({region:'us-east-1'});
  
    var ec2 = new AWS.EC2(
       {
-         accessKeyId: ,
-         secretAccessKey: 
+         accessKeyId: configuration['AWSAccessKeyId'], 
+         secretAccessKey: configuration["AWSSecretKey"], 
       }
    );
 
    var params = {
       InstanceIds: [ 
+         id
       ],
       // DryRun: true || false
    };
    ec2.terminateInstances(params, function(err, data) {
-     if (err) console.log(err, err.stack); // an error occurred
-     else     console.log("Success\n" + data);           // successful response
+     if(err) 
+         console.log(err, err.stack); // an error occurred
+     else{     
+         console.log("Success\n" + data);           // successful response
+         service.deleteInstance(userid, id);
+      }
    });
 }
 var deleteResource = function(bot, message) {
@@ -428,6 +507,7 @@ var deleteResource = function(bot, message) {
             convo.addQuestion('Are you sure you want to delete?', [{
                 pattern: bot.utterances.yes,
                 callback: function(response, convo) {
+                    testDelete(id_vms);
                     bot.reply(message, "Done! The cluster has been deleted\n");
                     convo.stop();
                 }
@@ -457,82 +537,88 @@ var deleteResource = function(bot, message) {
                 convo.next();
             });
 
-            if (service.areCredentialsPresent(userName, data.credentials)) {
-                convo.ask('Sure! I have your Amazon EC2 credentials.Should I use them to delete this VM?', [{
-                    pattern: bot.utterances.yes,
-                    callback: function(response, convo) {
-                        if (!service.checkInstances(userName, data.instances1, id_vms)) {
-                            convo.say('Sorry the VM ID selected does not exists or you do not have access rights to it');
-                            convo.next();
-                        } else {
-                            convo.changeTopic('ask_confirmation');
-                            //convo.say("Done! The cluster has been deleted\n");
-                            convo.next();
-                        }
+            service.areCredentialsPresent(userName, function(isPresent){
+               if (isPresent) {
+                   convo.ask('Sure! I have your Amazon EC2 credentials.Should I use them to delete this VM?', [{
+                       pattern: bot.utterances.yes,
+                       callback: function(response, convo) {
+                           service.checkInstances(userName, id_vms, function(okay){
+                              if(!okay) {
+                                  convo.say('Sorry the VM ID selected does not exists or you do not have access rights to it');
+                                  convo.next();
+                              } else {
+                                  service.getUserConfiguration(userName, function(configuration){
+                                       testDelete(userName, configuration, id_vms);  
+                                  });
+                                  //convo.changeTopic('ask_confirmation');
+                                  convo.next();
+                              }
+                           
+                           });
+                       }
+                   }, {
+                       pattern: bot.utterances.no,
+                       callback: function(response, convo) {
+                           convo.say('Ok. Please provide new credentials');
+                           convo.next();
+                       }
+                   }, {
+                       pattern: 'help',
+                       callback: function(response, convo) {
+                           bot.reply(message, helpMessage);
+                           convo.stop();
+                       }
+                   }, {
+                       default: true,
+                       callback: function(response, convo) {
+                           convo.say('I did not understand your response');
+                           convo.next();
+                       }
+                   }]);
+               } else {
+                   convo.addQuestion('Provide Username', function(response, convo) {
+                       newUsername = response.text;
+                       convo.changeTopic('ask_password');
+                   }, {}, 'ask_username');
+
+                   convo.addQuestion('Provide password', function(response, convo) {
+                       newPassword = response.text;
+                       credReady = true;
+                       //console.log(id_vms+ "::");
+                       if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
+                           if (service.checkInstances(newUsername, data.instances1, id_vms)) {
+                               convo.changeTopic('ask_confirmation');
+                           } else {
+                               bot.reply(message, 'Sorry the VM ID selected does not exists or you do not have access rights to it');
+                           }
+
+                       } else {
+                           bot.reply(message, 'Wrong credentials. Try again!');
+                           convo.changeTopic('ask_username');
+                       }
+                   }, {}, 'ask_password');
 
 
-                    }
-                }, {
-                    pattern: bot.utterances.no,
-                    callback: function(response, convo) {
-                        convo.say('Ok. Please provide new credentials');
-                        convo.next();
-                    }
-                }, {
-                    pattern: 'help',
-                    callback: function(response, convo) {
-                        bot.reply(message, helpMessage);
-                        convo.stop();
-                    }
-                }, {
-                    default: true,
-                    callback: function(response, convo) {
-                        convo.say('I did not understand your response');
-                        convo.next();
-                    }
-                }]);
-            } else {
-                convo.addQuestion('Provide Username', function(response, convo) {
-                    newUsername = response.text;
-                    convo.changeTopic('ask_password');
-                }, {}, 'ask_username');
-
-                convo.addQuestion('Provide password', function(response, convo) {
-                    newPassword = response.text;
-                    credReady = true;
-                    //console.log(id_vms+ "::");
-                    if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
-                        if (service.checkInstances(newUsername, data.instances1, id_vms)) {
-                            convo.changeTopic('ask_confirmation');
-                        } else {
-                            bot.reply(message, 'Sorry the VM ID selected does not exists or you do not have access rights to it');
-                        }
-
-                    } else {
-                        bot.reply(message, 'Wrong credentials. Try again!');
-                        convo.changeTopic('ask_username');
-                    }
-                }, {}, 'ask_password');
-
-
-                convo.ask('I dont have your credentials. Can you provide them?', [{
-                    pattern: bot.utterances.yes,
-                    callback: function(response, convo) {
-                        convo.changeTopic('ask_username');
-                        convo.next();
-                    }
-                }, {
-                    default: true,
-                    callback: function(response, convo) {
-                        convo.say('I didnt understand your response');
-                        convo.repeat();
-                        convo.next();
-                    }
-                }]);
-            }
+                   convo.ask('I dont have your credentials. Can you provide them?', [{
+                       pattern: bot.utterances.yes,
+                       callback: function(response, convo) {
+                           convo.changeTopic('ask_username');
+                           convo.next();
+                       }
+                   }, {
+                       default: true,
+                       callback: function(response, convo) {
+                           convo.say('I didnt understand your response');
+                           convo.repeat();
+                           convo.next();
+                       }
+                   }]);
+               }
+            
+            }); 
         });
     });
-}*/
+}
 var witbot = WitBot(witToken);
 
 botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, message) {
@@ -552,10 +638,10 @@ botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, me
         bot.reply(message, "I am good, how're you?")
     })
 
-    wit.hears('create VM', 0.5, deployVm1);
+    wit.hears('create VM', 0.5, deployVm);
     wit.hears('create cluster', 0.5, createCluster);
     wit.hears('list resources', 0.5, listResources);
-    //wit.hears('delete resource', 0.5, testDelete);
+    wit.hears('delete resource', 0.5, deleteResource);
     wit.otherwise(function(bot, message) {
         bot.reply(message, 'You are so intelligent, and I am so simple. I don\'t understnd')
     })
