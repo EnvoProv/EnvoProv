@@ -72,6 +72,19 @@ function isAWSPrivateKeyPresent(username, callback) {
     });
 }
 
+function isAWSPublicKeyPresent(username, callback) {
+    getMongoConnection(function(db) {
+        db.collection("public_keys").find({
+            userid: username
+        }).toArray(function(err, items) {
+            if (items.length == 0) {
+                callback(false, username);
+            } else {
+                callback(true, username);
+            }
+        })
+    });
+}
 function storeAWSPrivateKeyInformation(username, filename, content, callback) {
     exec("mkdir -p " + __dirname + "/../private_keys/" + username, function(err, stdout, stderr) {
         console.log(err)
@@ -97,6 +110,30 @@ function storeAWSPrivateKeyInformation(username, filename, content, callback) {
     })
 }
 
+function storeAWSPublicKeyInformation(username, filename, content, callback) {
+    exec("mkdir -p " + __dirname + "/../public_keys/" + username, function(err, stdout, stderr) {
+        console.log(err)
+    });
+    var public_key_path = __dirname + "/../public_keys/" + username + "/" + filename;
+    fs.writeFile(public_key_path, content, function(err) {
+        if (err) console.log(err)
+        exec('chmod 400 ' + public_key_path + "; cp " + public_key_path + " ~/.ssh/");
+        getMongoConnection(function(db) {
+            public_key_json = {
+                userid: username,
+                path: public_key_path,
+                file_name: filename.slice(0, -4)
+            }
+            configurations.userid = username;
+            db.collection("public_keys").insert(public_key_json, function(err, result) {
+                console.log("Inserted ", result)
+                if (err) console.log(err)
+                db.close();
+                callback();
+            });
+        })
+    })
+}
 function getPrivateKeyInformation(username, callback) {
     getMongoConnection(function(db) {
         db.collection("private_keys").find({
@@ -107,6 +144,15 @@ function getPrivateKeyInformation(username, callback) {
     });
 }
 
+function getPublicKeyInformation(username, callback) {
+    getMongoConnection(function(db) {
+        db.collection("public_keys").find({
+            userid: username
+        }).toArray(function(err, items) {
+            callback(items[0]);
+        })
+    });
+}
 function storeAWSConfigurationInformation(userid, configurations, nextFunction) {
     getMongoConnection(function(db) {
         //console.log(db)
@@ -240,12 +286,15 @@ function deleteInstance(userid, instanceid){
 }*/
 
 exports.getPrivateKeyInformation = getPrivateKeyInformation
+exports.getPublicKeyInformation = getPublicKeyInformation
 exports.getUserConfiguration = getUserConfiguration
 exports.storeAWSCredentialInformation = storeAWSCredentialInformation
 exports.storeAWSConfigurationInformation = storeAWSConfigurationInformation
 exports.isConfigurationInformationAvailable = isConfigurationInformationAvailable
 exports.storeAWSPrivateKeyInformation = storeAWSPrivateKeyInformation
+exports.storeAWSPublicKeyInformation = storeAWSPublicKeyInformation
 exports.isAWSPrivateKeyPresent = isAWSPrivateKeyPresent
+exports.isAWSPublicKeyPresent = isAWSPublicKeyPresent
 exports.areCredentialsPresent = areCredentialsPresent;
 exports.checkNewCredentials = checkNewCredentials;
 exports.getUserInstances = getUserInstances;
