@@ -163,27 +163,34 @@ function checkNewCredentials(username, password, newCredentials) {
     return found;
 }
 
-function checkInstances(username, instances, id_vms) {
-    var found = false;
-
-    instances.forEach(function(inst, index) {
-        if (inst.Name === id_vms && inst.User === username)
-            found = true;
+function checkInstances(username, instanceid, nextFunction) {
+    getMongoConnection(function(db) {
+        console.log("Got mongo db connection")
+        configurations = db.collection("instances")
+        configurations.find({
+            userid: username,
+            instanceid: instanceid
+        }).toArray(function(err, items) {
+            if (items.length == 0) {
+                db.close();
+                nextFunction(false);
+            } else {
+                db.close();
+                nextFunction(true);
+            }
+        })
     });
-
-    return found;
 }
 
 
-function getUserInstances(username, instances) {
-    var cluster = {};
-    for (inst in instances) {
-        if (instances[inst].User === username) {
-            cluster.id = instances[inst].id;
-            cluster.instances = instances[inst].Instances;
-            return cluster;
-        }
-    }
+function getUserInstances(username, callback) {
+    getMongoConnection(function(db) {
+        db.collection("instances").find({
+            userid: username
+        }).toArray(function(err, items) {
+            callback(items);
+        })
+    });
 }
 
 function canProvision(username, num_vms, credentials) {
@@ -197,6 +204,30 @@ function canProvision(username, num_vms, credentials) {
 
 }
 
+function storeInstanceForUser(userid, instance, callback) {
+    getMongoConnection(function(db) {
+      var newInstance = {};
+      newInstance.userid = userid;
+      newInstance.instanceid = instance.InstanceId;
+      newInstance.publicdns = instance.PublicDnsName;
+      newInstance.publicip = instance.PublicIpAddress; 
+      db.collection("instances").insert(newInstance, function(err, result) {
+            console.log("Inserted ", result)
+            if (err) console.log(err)
+            db.close();
+            callback(newInstance);
+        });
+    })
+}
+
+function deleteInstance(userid, instanceid){
+    getMongoConnection(function(db) {
+        db.collection("instances").remove({
+            userid: userid,
+            instanceid: instanceid
+        })
+    });
+}
 /*function canDelete(username, num_vms, credentials){
 	var found = false;
 	credentials.forEach(function(cred, index){
@@ -207,6 +238,7 @@ function canProvision(username, num_vms, credentials) {
 	return found;
 
 }*/
+
 exports.getPrivateKeyInformation = getPrivateKeyInformation
 exports.getUserConfiguration = getUserConfiguration
 exports.storeAWSCredentialInformation = storeAWSCredentialInformation
@@ -219,4 +251,6 @@ exports.checkNewCredentials = checkNewCredentials;
 exports.getUserInstances = getUserInstances;
 exports.canProvision = canProvision;
 //exports.canDelete = canDelete;
-exports.checkInstances = checkInstances;;
+exports.checkInstances = checkInstances;
+exports.storeInstanceForUser = storeInstanceForUser;
+exports.deleteInstance = deleteInstance;
