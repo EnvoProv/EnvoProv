@@ -8,7 +8,7 @@
 
 #### Links to Screencast:
 
-* Use case 2: [Link](https://youtu.be/YjQ88XrsRo)
+* Use case 2: [Link](https://www.youtube.com/watch?v=YjQ88XrsRo8)
 
 * Use Case 1 and 3: [Link](https://youtu.be/6GohuMjB7OM)
 
