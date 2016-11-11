@@ -6,7 +6,7 @@ Envoprov is an interactive bot which helps user provision stacks (LAMP, MEAN etc
 
 ###Design Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/DESIGN.md)
 ###Bot Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/BOT.md)
-
+###Service Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/Service/SERVICE.md)
 
 ###Team
 * Aniket Patel: apatel10
