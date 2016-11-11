@@ -13,11 +13,13 @@ var request = require('request');
 var includes = require('array-includes');
 var witToken = process.env.WitToken
 var AWS = require('aws-sdk');
+var cache = require('memory-cache');
 
 var botkit = require("botkit")
 var credReady = false,
     clusterRequested = false;
 var childProcess = require("child_process");
+var sleep = require('sleep')
 
 var botcontroller = botkit.slackbot({
     debug: false
@@ -26,6 +28,7 @@ var botcontroller = botkit.slackbot({
 var botinstance = botcontroller.spawn({
     token: process.env.EnvoProvToken
 });
+
 
 var helpMessage = "Howdy!. No worries! I am here to help you!" +
     "\nMake sure you have following keywords:" +
@@ -65,6 +68,7 @@ function askForTechnologyStack(userInfo, convo, bot, message) {
                 convo.next();
             } else {
                 convo.next();
+                cache.put(userInfo.userName, response.text);
                 handleCredentials(userInfo, convo, bot, message);
             }
         }
@@ -103,79 +107,138 @@ function deployVirtualMachine(username, convo, bot, message) {
     console.log(username)
     service.getUserConfiguration(username, function(configuration) {
         service.getPrivateKeyInformation(username, function(private_key_info) {
-           service.getPublicKeyInformation(username, function(public_key_info) {
-              
-              var pubKeyContent;
-              pubKeyContent = fs.readFileSync(public_key_info.path);
+            service.getPublicKeyInformation(username, function(public_key_info) {
 
-              AWS.config.update({
-                  accessKeyId: configuration['AWSAccessKeyId'], secretAccessKey: configuration["AWSSecretKey"], region: configuration["region"]
-              });
-              var ec2 = new AWS.EC2(); 
-              
-                
+                var pubKeyContent;
+                pubKeyContent = fs.readFileSync(public_key_info.path);
 
-              var params = {
-                 KeyName: public_key_info.file_name,
-                 PublicKeyMaterial: pubKeyContent,
-                 DryRun: false
-              };
-               
-              ec2.importKeyPair(params, function(err, data) {
-                  if(err && err["code"] != "InvalidKeyPair.Duplicate"){
-                     console.log(typeof(err));
-                     console.log(err);
-                  }
-                  else {
-                       
-                       var params = {
-                          ImageId: 'ami-2d39803a', // Ubuntu 14.04 amd64
-                          InstanceType: 't2.micro',
-                          MinCount: 1,
-                          MaxCount: 1,
-                          KeyName: public_key_info.file_name
-                       };
+                AWS.config.update({
+                    accessKeyId: configuration['AWSAccessKeyId'],
+                    secretAccessKey: configuration["AWSSecretKey"],
+                    region: configuration["region"]
+                });
+                var ec2 = new AWS.EC2();
 
-                       ec2.runInstances(params, function(err, data) {
-                       if (err) {
-                           console.log("Could not create instance", err);
-                           return;
-                       }
 
-                       var instanceId = data.Instances[0].InstanceId;
-                       instance_ID = data.Instances[0].InstanceId;
-                       console.log("Created instance", instanceId);
-                       var params = {
-                           DryRun: false,
-                           InstanceIds: [
-                               instance_ID
-                               /* more items */
-                           ]
-                       };
-                       ec2.waitFor('instanceRunning', params, function(err, data) {
-                         if (err) console.log(err, err.stack); // an error occurred
-                         else  {
-                              console.log(data.Reservations[0].Instances[0]);
-                              var newInstance = data.Reservations[0].Instances[0];
-                              convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!");
-                              convo.stop();
-                              service.storeInstanceForUser(username, newInstance, function(instance){
-                                    bot.reply(message, "Your instance is ready");
-                                    bot.reply(message, "\n\nInstance Id : " + instance.instanceid + "\nPublic DNS Name: " + instance.publicdns + "\nPublic IP: " + instance.publicip);
-                              })
-                           }        
-                       });
-                       
 
-                       }
-                       );
-                     
-                  }
-              });
-   
-           });
+                var params = {
+                    KeyName: public_key_info.file_name,
+                    PublicKeyMaterial: pubKeyContent,
+                    DryRun: false
+                };
+
+                ec2.importKeyPair(params, function(err, data) {
+                    if (err && err["code"] != "InvalidKeyPair.Duplicate") {
+                        console.log(typeof(err));
+                        console.log(err);
+                    } else {
+
+
+                        var params = {
+                            ImageId: 'ami-2d39803a', // Ubuntu 14.04 amd64
+                            InstanceType: 't2.micro',
+                            MinCount: 1,
+                            MaxCount: 1,
+                            KeyName: public_key_info.file_name
+                        };
+
+                        ec2.runInstances(params, function(err, data) {
+                            if (err) {
+                                console.log("Could not create instance", err);
+                                return;
+                            }
+
+                            var instanceId = data.Instances[0].InstanceId;
+                            instance_ID = data.Instances[0].InstanceId;
+                            console.log("Created instance", instanceId);
+                            var params = {
+                                DryRun: false,
+                                InstanceIds: [
+                                    instance_ID
+                                    /* more items */
+                                ]
+                            };
+                            var instanceIP;
+                            // sleep.sleep(60);
+                            ec2.waitFor('instanceRunning', params, function(err, data) {
+                                if (err) console.log(err, err.stack); // an error occurred
+                                else {
+                                    console.log(data.Reservations[0].Instances[0]);
+                                    var newInstance = data.Reservations[0].Instances[0];
+                                    convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!");
+                                    convo.stop();
+                                    service.storeInstanceForUser(username, newInstance, function(instance) {
+                                        bot.reply(message, "Your instance is ready");
+                                        bot.reply(message, "\n\nInstance Id : " + instance.instanceid + "\nPublic DNS Name: " + instance.publicdns + "\nPublic IP: " + instance.publicip);
+                                        instanceIP = instance.publicip;
+
+                                    })
+
+                                }
+                            });
+                            // sleep.sleep(60);
+                            ec2.waitFor('instanceStatusOk', params, function(err, data) {
+                                if (err) console.log(err, err.stack);
+                                // console.log(data.Reservations[0].Instances[0]);
+                                // var newInstance = data.Reservations[0].Instances[0];
+
+                                // convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!");
+                                // convo.stop();
+                                // service.storeInstanceForUser(username, newInstance, function(instance){
+                                //     bot.reply(message, "Your instance is ready");
+                                //     bot.reply(message, "\n\nInstance Id : " + instance.instanceid + "\nPublic DNS Name: " + instance.publicdns + "\nPublic IP: " + instance.publicip);
+                                //     instnceIP = instance.publicip;
+
+                                // })
+
+
+                                switch (cache.get(username)) {
+                                    case 'LAMP':
+                                        runCookbook(["apache", "mysql-book", "php"], configuration["ssh-user"], private_key_info.path, instanceIP);
+                                        break;
+                                    case 'Apache':
+                                        runCookbook(["apache"], configuration["ssh-user"], private_key_info.path, instanceIP);
+                                        break;
+                                    case 'MEAN':
+                                        runCookbook(["mongodb3, nodejs"], configuration["ssh-user"], private_key_info.path, instanceIP);
+                                        break;
+                                }
+                                bot.reply(message, "Your instance is provisioned. Je le apni jindagi!");
+
+                            })
+
+
+
+                        });
+
+                    }
+                });
+
+            });
         });
     });
+}
+
+function runCookbook(cbName, sshUser, keyLoc, ip, callback) {
+    // console.log(username);
+    var awsInstanceCommand = parse("knife bootstrap -y %s -N test --ssh-user %s --sudo --identity-file %s -r 'recipe[apt]", ip, sshUser, keyLoc);
+    cbName.forEach(function(bookName) {
+        awsInstanceCommand = parse(awsInstanceCommand + ', recipe[%s] ', bookName);
+
+        // console.log(awsInstanceCommand);
+    })
+    awsInstanceCommand = parse(awsInstanceCommand + "'");
+    console.log(awsInstanceCommand);
+    shell(awsInstanceCommand, function puts(error, stdout, stderr) {
+        console.log(stdout);
+        if (error) throw error;
+        else {
+            console.log("Servers provisioned on IP: %s successfully.", ip);
+        }
+
+    })
+
+
 }
 
 function checkPrivateKeyFile(username, convo, bot, message) {
@@ -201,7 +264,7 @@ function checkPrivateKeyFile(username, convo, bot, message) {
                                 service.storeAWSPrivateKeyInformation(userInfo.userName, response.file.name, response.content,
                                     function() {
                                         // deployVirtualMachine(username, convo, bot, message);
-                                       checkPublicKeyFile(username, convo, bot, message);
+                                        checkPublicKeyFile(username, convo, bot, message);
                                     })
                             }
                         }
@@ -243,6 +306,7 @@ function checkPublicKeyFile(username, convo, bot, message) {
         }
     });
 }
+
 function handleCredentials(userInfo, convo, bot, message) {
     console.log("Inside handle credentials")
     service.areCredentialsPresent(userInfo.userName, function(isPresent, username) {
@@ -311,7 +375,7 @@ function askForConfiguration(userInfo, convo, bot, message) {
                         if (err) {
                             convo.say("Error occured: " + err);
                         } else {
-                              console.log(response);
+                            console.log(response);
                             if (response.file.name === "aws.json") {
                                 userInfo.techStack = null;
                                 //console.log(response.content)
@@ -554,23 +618,23 @@ var listResources = function(bot, message) {
         userName = response.user.name;
         bot.startConversation(message, function(err, convo) {
             //var instances = service.getUserInstances(userName, data.instances1);
-            service.getUserInstances(userName, function(instances){
-               if (instances.length == 0) {
-                   bot.reply(message, "You have not provisioned any instances");
-               } else {
-                   // var cluster = service.getUserInstances(userName, data.instances);
-                   // convo.say("Here it is\n");
-                   // convo.say("Cluster ID :" + cluster.id);
-                   // for (inst in cluster.instances) {
-                   //     var vm = cluster.instances[inst];
-                   //     convo.say('\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
-                   // }
-                   // convo.next();
-                   convo.say("Here is the list of your instances: \n");
-                   instances.forEach(function(instance, index){
-                       convo.say("Instance ID: " + instance.instanceid); 
-                   });
-               }
+            service.getUserInstances(userName, function(instances) {
+                if (instances.length == 0) {
+                    bot.reply(message, "You have not provisioned any instances");
+                } else {
+                    // var cluster = service.getUserInstances(userName, data.instances);
+                    // convo.say("Here it is\n");
+                    // convo.say("Cluster ID :" + cluster.id);
+                    // for (inst in cluster.instances) {
+                    //     var vm = cluster.instances[inst];
+                    //     convo.say('\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
+                    // }
+                    // convo.next();
+                    convo.say("Here is the list of your instances: \n");
+                    instances.forEach(function(instance, index) {
+                        convo.say("Instance ID: " + instance.instanceid);
+                    });
+                }
 
             });
         });
@@ -578,32 +642,32 @@ var listResources = function(bot, message) {
     });
 }
 
-var testDelete = function(userid, configuration, id){
-   console.log("In delete test");
-  
-   AWS.config.update({region:'us-east-1'});
- 
-   var ec2 = new AWS.EC2(
-      {
-         accessKeyId: configuration['AWSAccessKeyId'], 
-         secretAccessKey: configuration["AWSSecretKey"], 
-      }
-   );
+var testDelete = function(userid, configuration, id) {
+    console.log("In delete test");
 
-   var params = {
-      InstanceIds: [ 
-         id
-      ],
-      // DryRun: true || false
-   };
-   ec2.terminateInstances(params, function(err, data) {
-     if(err) 
-         console.log(err, err.stack); // an error occurred
-     else{     
-         console.log("Success\n" + data);           // successful response
-         service.deleteInstance(userid, id);
-      }
-   });
+    AWS.config.update({
+        region: 'us-east-1'
+    });
+
+    var ec2 = new AWS.EC2({
+        accessKeyId: configuration['AWSAccessKeyId'],
+        secretAccessKey: configuration["AWSSecretKey"],
+    });
+
+    var params = {
+        InstanceIds: [
+            id
+        ],
+        // DryRun: true || false
+    };
+    ec2.terminateInstances(params, function(err, data) {
+        if (err)
+            console.log(err, err.stack); // an error occurred
+        else {
+            console.log("Success\n" + data); // successful response
+            service.deleteInstance(userid, id);
+        }
+    });
 }
 var deleteResource = function(bot, message) {
     var userName, num_vms;
@@ -647,85 +711,85 @@ var deleteResource = function(bot, message) {
                 convo.next();
             });
 
-            service.areCredentialsPresent(userName, function(isPresent){
-               if (isPresent) {
-                   convo.ask('Sure! I have your Amazon EC2 credentials.Should I use them to delete this VM?', [{
-                       pattern: bot.utterances.yes,
-                       callback: function(response, convo) {
-                           service.checkInstances(userName, id_vms, function(okay){
-                              if(!okay) {
-                                  convo.say('Sorry the VM ID selected does not exists or you do not have access rights to it');
-                                  convo.next();
-                              } else {
-                                  service.getUserConfiguration(userName, function(configuration){
-                                       testDelete(userName, configuration, id_vms);  
-                                  });
-                                  //convo.changeTopic('ask_confirmation');
-                                  convo.next();
-                              }
-                           
-                           });
-                       }
-                   }, {
-                       pattern: bot.utterances.no,
-                       callback: function(response, convo) {
-                           convo.say('Ok. Please provide new credentials');
-                           convo.next();
-                       }
-                   }, {
-                       pattern: 'help',
-                       callback: function(response, convo) {
-                           bot.reply(message, helpMessage);
-                           convo.stop();
-                       }
-                   }, {
-                       default: true,
-                       callback: function(response, convo) {
-                           convo.say('I did not understand your response');
-                           convo.next();
-                       }
-                   }]);
-               } else {
-                   convo.addQuestion('Provide Username', function(response, convo) {
-                       newUsername = response.text;
-                       convo.changeTopic('ask_password');
-                   }, {}, 'ask_username');
+            service.areCredentialsPresent(userName, function(isPresent) {
+                if (isPresent) {
+                    convo.ask('Sure! I have your Amazon EC2 credentials.Should I use them to delete this VM?', [{
+                        pattern: bot.utterances.yes,
+                        callback: function(response, convo) {
+                            service.checkInstances(userName, id_vms, function(okay) {
+                                if (!okay) {
+                                    convo.say('Sorry the VM ID selected does not exists or you do not have access rights to it');
+                                    convo.next();
+                                } else {
+                                    service.getUserConfiguration(userName, function(configuration) {
+                                        testDelete(userName, configuration, id_vms);
+                                    });
+                                    //convo.changeTopic('ask_confirmation');
+                                    convo.next();
+                                }
 
-                   convo.addQuestion('Provide password', function(response, convo) {
-                       newPassword = response.text;
-                       credReady = true;
-                       //console.log(id_vms+ "::");
-                       if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
-                           if (service.checkInstances(newUsername, data.instances1, id_vms)) {
-                               convo.changeTopic('ask_confirmation');
-                           } else {
-                               bot.reply(message, 'Sorry the VM ID selected does not exists or you do not have access rights to it');
-                           }
+                            });
+                        }
+                    }, {
+                        pattern: bot.utterances.no,
+                        callback: function(response, convo) {
+                            convo.say('Ok. Please provide new credentials');
+                            convo.next();
+                        }
+                    }, {
+                        pattern: 'help',
+                        callback: function(response, convo) {
+                            bot.reply(message, helpMessage);
+                            convo.stop();
+                        }
+                    }, {
+                        default: true,
+                        callback: function(response, convo) {
+                            convo.say('I did not understand your response');
+                            convo.next();
+                        }
+                    }]);
+                } else {
+                    convo.addQuestion('Provide Username', function(response, convo) {
+                        newUsername = response.text;
+                        convo.changeTopic('ask_password');
+                    }, {}, 'ask_username');
 
-                       } else {
-                           bot.reply(message, 'Wrong credentials. Try again!');
-                           convo.changeTopic('ask_username');
-                       }
-                   }, {}, 'ask_password');
+                    convo.addQuestion('Provide password', function(response, convo) {
+                        newPassword = response.text;
+                        credReady = true;
+                        //console.log(id_vms+ "::");
+                        if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
+                            if (service.checkInstances(newUsername, data.instances1, id_vms)) {
+                                convo.changeTopic('ask_confirmation');
+                            } else {
+                                bot.reply(message, 'Sorry the VM ID selected does not exists or you do not have access rights to it');
+                            }
+
+                        } else {
+                            bot.reply(message, 'Wrong credentials. Try again!');
+                            convo.changeTopic('ask_username');
+                        }
+                    }, {}, 'ask_password');
 
 
-                   convo.ask('I dont have your credentials. Can you provide them?', [{
-                       pattern: bot.utterances.yes,
-                       callback: function(response, convo) {
-                           convo.changeTopic('ask_username');
-                           convo.next();
-                       }
-                   }, {
-                       default: true,
-                       callback: function(response, convo) {
-                           convo.say('I didnt understand your response');
-                           convo.repeat();
-                           convo.next();
-                       }
-                   }]);
-               }
-            
-            }); 
+                    convo.ask('I dont have your credentials. Can you provide them?', [{
+                        pattern: bot.utterances.yes,
+                        callback: function(response, convo) {
+                            convo.changeTopic('ask_username');
+                            convo.next();
+                        }
+                    }, {
+                        default: true,
+                        callback: function(response, convo) {
+                            convo.say('I didnt understand your response');
+                            convo.repeat();
+                            convo.next();
+                        }
+                    }]);
+                }
+
+            });
         });
     });
 }
