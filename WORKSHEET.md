@@ -91,7 +91,8 @@
 
 | Deliverable   | Item/Status   |  Issues/Tasks
 | ------------- | ------------  |  ------------
-| Test Use Case - Create a VM/Cluster for given stack <br> _Use Case 1 and 2_| --P-- | [Trello Card](https://trello.com/c/JHezHIEd)
-| Test Use Case - Delete a VM/Cluster <br> _Use Case 3_| --P-- | [Trello Card](https://trello.com/c/XVDTEwDC)
-| Update Github repository | --P-- | &nbsp;
-| Create Screencast video | --P-- | &nbsp;
+| Test Use Case - Create a Single VM for given stack <br> _Use Case 1_| --Complete-- | [Trello Card](https://trello.com/c/Jl2AHxED)
+| Test Use Case - Create a Cluster for given stack <br> _Use Case 2_| --Complete-- | [Trello Card](https://trello.com/c/9l5KLEmC)
+| Test Use Case - Delete a VM/Cluster <br> _Use Case 3_| --Complete-- | [Trello Card](https://trello.com/c/XVDTEwDC)
+| Update Github repository | --Complete-- | &nbsp;
+| Create Screencast video | --Complete-- | [Trello Card](https://trello.com/c/1p5TlIfV)
