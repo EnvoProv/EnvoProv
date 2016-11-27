@@ -31,7 +31,7 @@ var botinstance = botcontroller.spawn({
 
 var helpMessage = "Howdy!. No worries! I am here to help you!" +
     "\nMake sure you have following keywords:" +
-    "\nSingle VM: 'create'" +
+    "\nSingle VM: 'vm'" +
     "\nCluster VM: 'cluster'" +
     "\nStacks available: 'LAMP' OR 'MEAN'" +
     "\nExit current conversation: 'bye' OR 'Bye'";
@@ -199,12 +199,20 @@ function createVM(username, convo, bot, message, nodeName, cookbookName) {
                 };
 
                 ec2.importKeyPair(params, function(err, data) {
-                    if (err && err["code"] != "InvalidKeyPair.Duplicate") {
-                        console.log(typeof(err));
-                        console.log(err);
-                    } else {
+                    if (err["code"] == "AuthFailure") {
+                        service.deleteCredentials(username, function(){
+                            console.log("Access key deleted");
+                            bot.reply(message, "Access key is not working. Please re-upload and restart the conversation.");
+                            convo.stop();
+                        })
+                    }
+                    else if (err && err["code"] != "InvalidKeyPair.Duplicate") {
+                        bot.reply(message, "An error occurred. Please try again after some time.")
+                        convo.stop();
+                    }
+                    else {
 
-
+                        convo.say("Creating your instance. Hold on.");
                         var params = {
                             ImageId: 'ami-2d39803a', // Ubuntu 14.04 amd64
                             InstanceType: 't2.micro',
@@ -235,12 +243,11 @@ function createVM(username, convo, bot, message, nodeName, cookbookName) {
                                 else {
                                     console.log(data.Reservations[0].Instances[0]);
                                     var newInstance = data.Reservations[0].Instances[0];
-                                    convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!");
-                                    convo.stop();
                                     service.storeInstanceForUser(username, newInstance, function(instance) {
                                         bot.reply(message, "Your instance is ready");
                                         bot.reply(message, "\n\nInstance Id : " + instance.instanceid + "\nPublic DNS Name: " + instance.publicdns + "\nPublic IP: " + instance.publicip);
                                         instanceIP = instance.publicip;
+                                        bot.reply(message, "Provision of stack will take 5-10 minutes.");
 
                                     })
 
@@ -353,8 +360,7 @@ function handleCredentials(userInfo, convo, bot, message) {
     console.log("Inside handle credentials")
     service.areCredentialsPresent(userInfo.userName, function(isPresent, username) {
         if (isPresent) {
-            console.log("I have credentials")
-            convo.say("I have your AWS credentials")
+            console.log("I have AWS Secret credentials")
             checkPrivateKeyFile(userInfo, username, convo, bot, message);
         } else {
             console.log("Uploading credentials file")
@@ -366,7 +372,7 @@ function handleCredentials(userInfo, convo, bot, message) {
             }, function(err, data) {
 
                 if (err) convo.say("Error occured " + err)
-                convo.say("I don't have your AWS credentials, please download this json file,\
+                convo.say("I don't have your AWS Secret credentials, please download this json file,\
         fill it up and send back to me! " + data.file.url_private_download);
 
                 botcontroller.on('file_shared', function(bot, content) {
@@ -404,7 +410,7 @@ function askForConfiguration(userInfo, convo, bot, message) {
         if (err) {
             console.error(err);
         } else {
-            convo.say("Your AWS configuration is missing, please download this json file,\
+            convo.say("Your AWS image configuration data is missing, please download this json file,\
           fill it up and send back to me! " + data.file.url_private_download);
 
             botcontroller.on('file_shared', function(bot, content) {
@@ -453,7 +459,7 @@ var deployVm = function(bot, message) {
             service.isConfigurationInformationAvailable(userInfo.userName,
                 function(isAvailable) {
                     if (isAvailable) {
-                        convo.say("I have your AWS Configuration");
+                        // convo.say("I have your AWS Image Configuration Saved.");
                         askForTechnologyStack(userInfo, convo, bot, message);
                     } else {
                         askForConfiguration(userInfo, convo, bot, message);

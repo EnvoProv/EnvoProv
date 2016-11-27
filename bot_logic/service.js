@@ -195,6 +195,23 @@ function areCredentialsPresent(username, nextFunction) {
     });
 }
 
+function deleteCredentials(username, nextFunction) {
+    getMongoConnection(function(db) {
+        configurations = db.collection("credentials", {}, function(err, creds) {
+            creds.remove({ userid: username}, function(err, result){
+                if (err) {
+                    console.log("Delete credentials unsuccesful.");
+                }
+                else{
+                    console.log("Delete credentials successful.");
+                }
+                db.close();
+                nextFunction();
+            })
+        })
+    })
+}
+
 function checkNewCredentials(username, password, newCredentials) {
     var found = false;
     newCredentials.forEach(function(cred, index) {
@@ -288,3 +305,4 @@ exports.canProvision = canProvision;
 exports.checkInstances = checkInstances;
 exports.storeInstanceForUser = storeInstanceForUser;
 exports.deleteInstance = deleteInstance;
+exports.deleteCredentials = deleteCredentials;
