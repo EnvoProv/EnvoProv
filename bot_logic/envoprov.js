@@ -199,7 +199,7 @@ function createVM(username, convo, bot, message, nodeName, cookbookName) {
                 };
 
                 ec2.importKeyPair(params, function(err, data) {
-                    if (err["code"] == "AuthFailure") {
+                    if ( err && err["code"] == "AuthFailure") {
                         service.deleteCredentials(username, function(){
                             console.log("Access key deleted");
                             bot.reply(message, "Access key is not working. Please re-upload and restart the conversation.");
@@ -508,12 +508,14 @@ var listResources = function(bot, message) {
             service.getUserInstances(userName, function(instances) {
                 if (instances.length == 0) {
                     bot.reply(message, "You have not provisioned any instances");
+                    convo.stop();
                 } else {
 
                     convo.say("Here is the list of your instances: \n");
                     instances.forEach(function(instance, index) {
                         convo.say("Instance ID: " + instance.instanceid);
                     });
+                    convo.stop();
                 }
 
             });
