@@ -60,3 +60,11 @@ Public IP: X.X.X.X
 </pre>
 </li>
 </ul>
+<br/>
+
+
+**2. Create a Cluster**
+<ul>
+<li> Start with typing any of following `Create a cluster`, `Create Cluster` or any slight variation of this, and bot will understand.</li><br/>
+
+<li> </li><br/>
