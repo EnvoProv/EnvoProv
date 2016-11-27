@@ -174,7 +174,7 @@ function deployVirtualMachine(userInfo, username, convo, bot, message) {
                 createVM(username,convo,bot,message,'test1',['mongodb3','nodejs','php']);
                 break;
             case 'Apache':
-                createVM(username, convo, bot, message, 'test1',['apache']);
+                createVM(username, convo, bot, message, 'test5',['apache']);
                 break;
         }
     }
@@ -236,7 +236,6 @@ function createVM(username, convo, bot, message, nodeName, cookbookName){
                                 ]
                             };
                             var instanceIP;
-                            // sleep.sleep(60);
                             ec2.waitFor('instanceRunning', params, function(err, data) {
                                 if (err) console.log(err, err.stack); // an error occurred
                                 else {
@@ -253,25 +252,10 @@ function createVM(username, convo, bot, message, nodeName, cookbookName){
 
                                 }
                             });
-                            // sleep.sleep(60);
                             ec2.waitFor('instanceStatusOk', params, function(err, data) {
                                 if (err) console.log(err, err.stack);
-                                // console.log(data.Reservations[0].Instances[0]);
-                                // var newInstance = data.Reservations[0].Instances[0];
-
-                                // convo.say("Creating a VM for you on EC2, sit back and relax! I will let you know the details once it is up and running!");
-                                // convo.stop();
-                                // service.storeInstanceForUser(username, newInstance, function(instance){
-                                //     bot.reply(message, "Your instance is ready");
-                                //     bot.reply(message, "\n\nInstance Id : " + instance.instanceid + "\nPublic DNS Name: " + instance.publicdns + "\nPublic IP: " + instance.publicip);
-                                //     instnceIP = instance.publicip;
-
-                                // })
 
                                 runCookbook(cookbookName, configuration["ssh-user"], private_key_info.path, instanceIP, nodeName);
-        
-                                
-                                // cache.del(username);
                                 bot.reply(message, "Your instance is provisioned.");
 
                             })
@@ -289,13 +273,10 @@ function createVM(username, convo, bot, message, nodeName, cookbookName){
 }
 
 function runCookbook(cbName, sshUser, keyLoc, ip, nodeName) {
-    // console.log(username);
 
     var awsInstanceCommand = parse("knife bootstrap -y %s -N %s --ssh-user %s --sudo --identity-file %s -r 'recipe[apt]", ip, nodeName, sshUser, keyLoc);
     cbName.forEach(function(bookName) {
         awsInstanceCommand = parse(awsInstanceCommand + ', recipe[%s] ', bookName);
-
-        // console.log(awsInstanceCommand);
     })
     awsInstanceCommand = parse(awsInstanceCommand + "'");
     console.log(awsInstanceCommand);
@@ -314,7 +295,6 @@ function runCookbook(cbName, sshUser, keyLoc, ip, nodeName) {
 function checkPrivateKeyFile(userInfo, username, convo, bot, message) {
     service.isAWSPrivateKeyPresent(username, function(isPresent, username) {
         if (isPresent) {
-            // deployVirtualMachine(username, convo, bot, message);
             checkPublicKeyFile(userInfo, username, convo, bot, message);
         } else {
             convo.say("Please upload your private key file");
@@ -331,9 +311,9 @@ function checkPrivateKeyFile(userInfo, username, convo, bot, message) {
                             })
                             var ext = response.file.name.substring(response.file.name.lastIndexOf(".") + 1)
                             if (ext === "pem") {
+
                                 service.storeAWSPrivateKeyInformation(userInfo.userName, response.file.name, response.content,
                                     function() {
-                                        // deployVirtualMachine(username, convo, bot, message);
                                         checkPublicKeyFile(userInfo, username, convo, bot, message);
                                     })
                             }
@@ -392,8 +372,7 @@ function handleCredentials(userInfo, convo, bot, message) {
                 title: 'AWS credentials format',
                 initialComment: 'AWS credentials format'
             }, function(err, data) {
-                // console.log("In uploadaed callback");
-                // console.log(convo);
+
                 if (err) convo.say("Error occured " + err)
                 convo.say("I don't have your AWS credentials, please download this json file,\
         fill it up and send back to me! " + data.file.url_private_download);
@@ -408,7 +387,7 @@ function handleCredentials(userInfo, convo, bot, message) {
                             } else {
                                 if (response.file.name === "aws_credentials.json") {
                                     userInfo.techStack = null;
-                                    //console.log(response.content)
+                                    
                                     service.storeAWSCredentialInformation(userInfo.userName, JSON.parse(response.content), function() {
                                         handleCredentials(userInfo, convo, bot, message);
                                     })
@@ -448,10 +427,10 @@ function askForConfiguration(userInfo, convo, bot, message) {
                             console.log(response);
                             if (response.file.name === "aws.json") {
                                 userInfo.techStack = null;
-                                //console.log(response.content)
+                            
                                 service.storeAWSConfigurationInformation(userInfo.userName, JSON.parse(response.content), function() {
                                     askForTechnologyStack(userInfo, convo, bot, message);
-                                    //handleCredentials(userInfo, convo, bot);
+                                    
                                 })
                             }
                         }
@@ -528,19 +507,11 @@ var listResources = function(bot, message) {
     }, (error, response) => {
         userName = response.user.name;
         bot.startConversation(message, function(err, convo) {
-            //var instances = service.getUserInstances(userName, data.instances1);
             service.getUserInstances(userName, function(instances) {
                 if (instances.length == 0) {
                     bot.reply(message, "You have not provisioned any instances");
                 } else {
-                    // var cluster = service.getUserInstances(userName, data.instances);
-                    // convo.say("Here it is\n");
-                    // convo.say("Cluster ID :" + cluster.id);
-                    // for (inst in cluster.instances) {
-                    //     var vm = cluster.instances[inst];
-                    //     convo.say('\n IP: ' + vm.IP + ' \nEnvironment: ' + vm.Environment);
-                    // }
-                    // convo.next();
+                    
                     convo.say("Here is the list of your instances: \n");
                     instances.forEach(function(instance, index) {
                         convo.say("Instance ID: " + instance.instanceid);
@@ -635,7 +606,7 @@ var deleteResource = function(bot, message) {
                                     service.getUserConfiguration(userName, function(configuration) {
                                         testDelete(userName, configuration, id_vms);
                                     });
-                                    //convo.changeTopic('ask_confirmation');
+                                    
                                     convo.next();
                                 }
 
@@ -669,7 +640,7 @@ var deleteResource = function(bot, message) {
                     convo.addQuestion('Provide password', function(response, convo) {
                         newPassword = response.text;
                         credReady = true;
-                        //console.log(id_vms+ "::");
+                        
                         if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
                             if (service.checkInstances(newUsername, data.instances1, id_vms)) {
                                 convo.changeTopic('ask_confirmation');
@@ -707,7 +678,7 @@ var deleteResource = function(bot, message) {
 var witbot = WitBot(witToken);
 
 botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, message) {
-    //console.log(message);
+    
     var wit = witbot.process(message.text, bot, message);
 
     wit.hears('greeting', 0.5, function(bot, message, outcome) {

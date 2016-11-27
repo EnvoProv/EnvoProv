@@ -7,7 +7,6 @@ function getMongoConnection(db_processing) {
     var url = 'mongodb://localhost:27017/envoprov';
     MongoClient.connect(url, function(err, db) {
         if (err) console.log(err)
-            //db = MongoClient.db('envoprov');
         db.createCollection('configurations', function(err, collection) {
             if (err) console.log(err)
             db_processing(db);
@@ -155,9 +154,7 @@ function getPublicKeyInformation(username, callback) {
 }
 function storeAWSConfigurationInformation(userid, configurations, nextFunction) {
     getMongoConnection(function(db) {
-        //console.log(db)
         configurations.userid = userid;
-        //console.log(configurations)
         db.collection("configurations").insert(configurations, function(err, result) {
             console.log("Inserted ", result)
             if (err) console.log(err)
@@ -169,9 +166,8 @@ function storeAWSConfigurationInformation(userid, configurations, nextFunction) 
 
 function storeAWSCredentialInformation(userid, configurations, nextFunction) {
     getMongoConnection(function(db) {
-        //console.log(db)
+
         configurations.userid = userid;
-        //console.log(configurations)
         db.collection("credentials").insert(configurations, function(err, result) {
             console.log("Inserted ", result)
             if (err) console.log(err)
@@ -274,16 +270,6 @@ function deleteInstance(userid, instanceid){
         })
     });
 }
-/*function canDelete(username, num_vms, credentials){
-	var found = false;
-	credentials.forEach(function(cred, index){
-		if(cred.username === username && cred.aval_instances === id_vms)
-			found = true;
-	});
-
-	return found;
-
-}*/
 
 exports.getPrivateKeyInformation = getPrivateKeyInformation
 exports.getPublicKeyInformation = getPublicKeyInformation
@@ -299,7 +285,6 @@ exports.areCredentialsPresent = areCredentialsPresent;
 exports.checkNewCredentials = checkNewCredentials;
 exports.getUserInstances = getUserInstances;
 exports.canProvision = canProvision;
-//exports.canDelete = canDelete;
 exports.checkInstances = checkInstances;
 exports.storeInstanceForUser = storeInstanceForUser;
 exports.deleteInstance = deleteInstance;
