@@ -60,3 +60,27 @@ Public IP: X.X.X.X
 </pre>
 </li>
 </ul>
+<br/>
+
+
+**2. Create a Cluster**
+<ul>
+<li> Start with typing any of following `Create a cluster`, `Create Cluster` or any slight variation of this, and bot will understand.</li><br/>
+
+<li> Now the bot will ask for configuration, technology stack, credentials file and public/private key file similar as described in `Create Instance` scenario. It will only ask for technology stack if other information was already provided.  </li><br/>
+
+<li>In the final step, bot will create as many VMs as required for the particular technology stack that you have chosen (1 for Apache, 3 each for MEAN and LAMP stack). It will display the details of the VMs once those are provisioned.</li>
+
+<li>Please note that you have to wait for the technology stacks to be installed on the provisioned resources after you get the details.</li>
+</ul>
+<br/>
+
+**3. Delete a VM/Cluster**
+<ul>
+<li> For deleting a cluster, you will have to individually delete the VMs belonging to that particular cluster. The procedure remains same for deleting an independent VM.</li><br/>
+
+<li> To delete a VM, type `delete VM`, 'delete an instance' or any slight variation of this command.  </li><br/>
+
+<li>In the next step, bot will ask you for the instance ID, which was provided to you when the VM was provisioned.</li>
+
+<li>After this, the bot will asynchronously delete your VM and you can move on to next task.</li>
