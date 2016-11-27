@@ -14,7 +14,6 @@ var includes = require('array-includes');
 var witToken = process.env.WitToken
 var AWS = require('aws-sdk');
 var cache = require('memory-cache');
-
 var botkit = require("botkit")
 var credReady = false,
     clusterRequested = false;
@@ -32,9 +31,9 @@ var botinstance = botcontroller.spawn({
 
 var helpMessage = "Howdy!. No worries! I am here to help you!" +
     "\nMake sure you have following keywords:" +
-    "\nSingle VM: 'single'" +
-    "\nCluster VM: 'cluster' OR 'grid'" +
-    "\nStacks available: 'LAMP' OR 'MEAN' OR 'LEMP'" +
+    "\nSingle VM: 'create'" +
+    "\nCluster VM: 'cluster'" +
+    "\nStacks available: 'LAMP' OR 'MEAN'" +
     "\nExit current conversation: 'bye' OR 'Bye'";
 var messageQueue = [];
 var userInfo = {
@@ -58,15 +57,14 @@ botcontroller.hears(['help'], ['direct_message'], function(bot, message) {
 });
 
 function askForTechnologyStack(userInfo, convo, bot, message) {
-    if(!userInfo.cluster)
-    {
-        convo.ask('Which technology stack do you want installed on the VM? Apache, LAMP , MEAN or LEMP', [{
+    if (!userInfo.cluster) {
+        convo.ask('Which technology stack do you want installed on the VM? Apache, LAMP or MEAN', [{
             pattern: '[a-z][A-Z][^bye]',
             callback: function(response, convo) {
                 userInfo.techStack = response.text;
-                var proper_response = includes(["LAMP", "MEAN", "LEMP", "Apache"], response.text)
+                var proper_response = includes(["LAMP", "MEAN", "Apache"], response.text)
                 if (!proper_response) {
-                    convo.say('Please choose between Apache, LAMP, MEAN and LEMP');
+                    convo.say('Please choose between Apache, LAMP and MEAN');
                     convo.repeat();
                     convo.next();
                 } else {
@@ -95,16 +93,14 @@ function askForTechnologyStack(userInfo, convo, bot, message) {
                 convo.next();
             }
         }]);
-    }
-    else
-    {
-        convo.ask('Which technology stack do you want installed on the cluster? Apache, LAMP , MEAN or LEMP. For now only 3 VMs would be provisioned.', [{
-        pattern: '[a-z][A-Z][^bye]',
+    } else {
+        convo.ask('Which technology stack do you want installed on the cluster? Apache, LAMP or MEAN', [{
+            pattern: '[a-z][A-Z][^bye]',
             callback: function(response, convo) {
                 userInfo.techStack = response.text;
-                var proper_response = includes(["LAMP", "MEAN", "LEMP", "Apache"], response.text)
+                var proper_response = includes(["LAMP", "MEAN", "Apache"], response.text)
                 if (!proper_response) {
-                    convo.say('Please choose between Apache, LAMP, MEAN and LEMP');
+                    convo.say('Please choose between Apache, LAMP and MEAN');
                     convo.repeat();
                     convo.next();
                 } else {
@@ -147,41 +143,39 @@ function parse(str) {
 
 function deployVirtualMachine(userInfo, username, convo, bot, message) {
     console.log(userInfo)
-    if(userInfo.cluster)
-    {
-        switch(cache.get(username)){
+    if (userInfo.cluster) {
+        switch (cache.get(username)) {
             case 'LAMP':
-                createVM(username,convo,bot,message,'test1',['apache']);
-                createVM(username,convo,bot,message,'test2',['mysql-book']);
-                createVM(username,convo,bot,message,'test3',['php']);
+                createVM(username, convo, bot, message, 'test1', ['apache']);
+                createVM(username, convo, bot, message, 'test2', ['mysql-book']);
+                createVM(username, convo, bot, message, 'test3', ['php']);
                 break;
             case 'MEAN':
-                createVM(username,convo,bot,message,'test1',['mongodb3']);
-                createVM(username,convo,bot,message,'test2',['nodejs']);
-                createVM(username,convo,bot,message,'test3',['php']);
+                createVM(username, convo, bot, message, 'test1', ['mongodb3']);
+                createVM(username, convo, bot, message, 'test2', ['nodejs']);
+                createVM(username, convo, bot, message, 'test3', ['php']);
                 break;
             case 'Apache':
-                createVM(username, convo, bot, message, 'test1',['apache']);
+                createVM(username, convo, bot, message, 'test1', ['apache']);
                 break;
         }
-    }
-    else{
-        switch(cache.get(username)){
+    } else {
+        switch (cache.get(username)) {
             case 'LAMP':
-                createVM(username,convo,bot,message,'test1',['apache','mysql-book','php']);
+                createVM(username, convo, bot, message, 'test1', ['apache', 'mysql-book', 'php']);
                 break;
             case 'MEAN':
-                createVM(username,convo,bot,message,'test1',['mongodb3','nodejs','php']);
+                createVM(username, convo, bot, message, 'test1', ['mongodb3', 'nodejs', 'php']);
                 break;
             case 'Apache':
-                createVM(username, convo, bot, message, 'test5',['apache']);
+                createVM(username, convo, bot, message, 'test1', ['apache']);
                 break;
         }
     }
 
 }
 
-function createVM(username, convo, bot, message, nodeName, cookbookName){
+function createVM(username, convo, bot, message, nodeName, cookbookName) {
     service.getUserConfiguration(username, function(configuration) {
         service.getPrivateKeyInformation(username, function(private_key_info) {
             service.getPublicKeyInformation(username, function(public_key_info) {
@@ -259,8 +253,6 @@ function createVM(username, convo, bot, message, nodeName, cookbookName){
                                 bot.reply(message, "Your instance is provisioned.");
 
                             })
-
-
 
                         });
 
@@ -387,7 +379,7 @@ function handleCredentials(userInfo, convo, bot, message) {
                             } else {
                                 if (response.file.name === "aws_credentials.json") {
                                     userInfo.techStack = null;
-                                    
+
                                     service.storeAWSCredentialInformation(userInfo.userName, JSON.parse(response.content), function() {
                                         handleCredentials(userInfo, convo, bot, message);
                                     })
@@ -427,10 +419,10 @@ function askForConfiguration(userInfo, convo, bot, message) {
                             console.log(response);
                             if (response.file.name === "aws.json") {
                                 userInfo.techStack = null;
-                            
+
                                 service.storeAWSConfigurationInformation(userInfo.userName, JSON.parse(response.content), function() {
                                     askForTechnologyStack(userInfo, convo, bot, message);
-                                    
+
                                 })
                             }
                         }
@@ -511,7 +503,7 @@ var listResources = function(bot, message) {
                 if (instances.length == 0) {
                     bot.reply(message, "You have not provisioned any instances");
                 } else {
-                    
+
                     convo.say("Here is the list of your instances: \n");
                     instances.forEach(function(instance, index) {
                         convo.say("Instance ID: " + instance.instanceid);
@@ -606,7 +598,7 @@ var deleteResource = function(bot, message) {
                                     service.getUserConfiguration(userName, function(configuration) {
                                         testDelete(userName, configuration, id_vms);
                                     });
-                                    
+
                                     convo.next();
                                 }
 
@@ -640,7 +632,7 @@ var deleteResource = function(bot, message) {
                     convo.addQuestion('Provide password', function(response, convo) {
                         newPassword = response.text;
                         credReady = true;
-                        
+
                         if (service.checkNewCredentials(newUsername, newPassword, data.new_credentials)) {
                             if (service.checkInstances(newUsername, data.instances1, id_vms)) {
                                 convo.changeTopic('ask_confirmation');
@@ -678,7 +670,7 @@ var deleteResource = function(bot, message) {
 var witbot = WitBot(witToken);
 
 botcontroller.hears('.*', ['direct_message', 'direct_mention'], function(bot, message) {
-    
+
     var wit = witbot.process(message.text, bot, message);
 
     wit.hears('greeting', 0.5, function(bot, message, outcome) {
