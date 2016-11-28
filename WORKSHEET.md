@@ -82,7 +82,7 @@
 | Create Chef Cookbooks for MongoDB, ExpressJS, AngularJS,<br> NodeJS, MySQL, PHP, Nginx  | --Completed-- | [Trello Card](https://trello.com/c/E4OF0M5b)
 | Test Chef cookbooks | --Completed--| [Trello Card](https://trello.com/c/E4OF0M5b)
 | Develop Workflow for Delete module | --Completed-- | [Trello Card](https://trello.com/c/Irr9b828)
-| Integrate Chef cookbook commands in bot logic | --Partial-- | [Trello Card]()
+| Integrate Chef cookbook commands in bot logic | --Complete-- | [Trello Card]()
 | Create input JSON file validators | --Complete-- | [Trello Card](https://trello.com/c/jHoYqwMG)
 <br>
 <br>
