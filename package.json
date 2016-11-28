@@ -4,24 +4,30 @@
   "description": "",
   "main": "bot.js",
   "scripts": {
+    "start": "service mongodb start && node ./bot_logic/envoprov.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "array-includes": "^3.0.2",
+    "aws-sdk": "^2.6.15",
     "botkit": "^0.2.2",
+    "chef": "^0.3.1",
     "child_process": "~1.0.2",
     "download-file-sync": "^1.0.4",
     "interactive": "^0.1.9",
+    "memory-cache": "^0.1.6",
     "mongodb": "~2.2.11",
+    "node-rsa": "^0.4.2",
     "node-slack-upload": "~1.2.0",
     "node-wit": "^4.1.0",
+    "pem": "^1.8.3",
     "shelljs": "~0.7.4",
     "slack-node": "^0.1.8",
     "slackbots": "^0.5.1",
-    "sync": "~0.2.5",
-    "witaitbot": "file:witaibot/"
+    "sleep": "^4.0.0",
+    "sync": "~0.2.5"
   },
   "devDependencies": {
     "jsonschema": "^1.1.0"
