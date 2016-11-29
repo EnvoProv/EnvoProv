@@ -1,0 +1,12 @@
+{
+ "id": "/aws",
+ "type": "object",
+  "properties": {
+    "image-id": {"type": "string"},
+    "region": { "enum":["us-east-1", "us-east-2", "us-west-1", "us-west-2"]},
+    "instance-type": { "type": "string"},
+    "ssh-user": { "enum":["ubuntu", "e2-user", "root"] }
+   },
+   "required": ["image-id", "region", "instance-type", "ssh-user"],
+   "additionalProperties": false
+}

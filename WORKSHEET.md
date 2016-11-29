@@ -58,3 +58,41 @@
 | Selenium Test - Use Case 3      |  -- Completed --             |  [Trello Card](https://trello.com/c/ukpadEW7)
 | Enhance bot use case scenarios | -- Completed -- | [Trello Card](https://trello.com/c/fNXfdiXG)
 | Create Screencast video | -- Completed -- | [Trello Card](https://trello.com/c/sYpVZwSm)
+
+
+<br>
+<br>
+<br>
+**Week - 10/24 - 10/28**
+
+
+| Deliverable   | Item/Status   |  Issues/Tasks
+| ------------- | ------------  |  ------------
+| Create Workflow for single VM deployment on AWS | -- Completed -- |  [Trello Card](https://trello.com/c/Uk37nU42)
+| Chef Basic Integration with AWS | -- Completed -- | [Trello Card](https://trello.com/c/MqihHM8m)
+| Create a Chef Cookbook for Apache Installation | -- Completed-- | [Trello Card](https://trello.com/c/rSq9Q4EX)
+| Test the cookbook execution | --Completed-- | [Trello Card](https://trello.com/c/rSq9Q4EX)
+<br>
+<br>
+<br>
+**Week - 10/31 - 11/04**
+
+| Deliverable   | Item/Status   |  Issues/Tasks
+| ------------- | ------------  |  ------------
+| Create Chef Cookbooks for MongoDB, ExpressJS, AngularJS,<br> NodeJS, MySQL, PHP, Nginx  | --Completed-- | [Trello Card](https://trello.com/c/E4OF0M5b)
+| Test Chef cookbooks | --Completed--| [Trello Card](https://trello.com/c/E4OF0M5b)
+| Develop Workflow for Delete module | --Completed-- | [Trello Card](https://trello.com/c/Irr9b828)
+| Integrate Chef cookbook commands in bot logic | --Complete-- | [Trello Card]()
+| Create input JSON file validators | --Complete-- | [Trello Card](https://trello.com/c/jHoYqwMG)
+<br>
+<br>
+<br>
+**Week - 11/07 - 11/11**
+
+| Deliverable   | Item/Status   |  Issues/Tasks
+| ------------- | ------------  |  ------------
+| Test Use Case - Create a Single VM for given stack <br> _Use Case 1_| --Complete-- | [Trello Card](https://trello.com/c/Jl2AHxED)
+| Test Use Case - Create a Cluster for given stack <br> _Use Case 2_| --Complete-- | [Trello Card](https://trello.com/c/9l5KLEmC)
+| Test Use Case - Delete a VM/Cluster <br> _Use Case 3_| --Complete-- | [Trello Card](https://trello.com/c/XVDTEwDC)
+| Update Github repository | --Complete-- | &nbsp;
+| Create Screencast video | --Complete-- | [Trello Card](https://trello.com/c/1p5TlIfV)

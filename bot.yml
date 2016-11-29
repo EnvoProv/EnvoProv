@@ -1,0 +1,17 @@
+name: EnvoProv
+description: Helping you set VMs on request
+email: ssdharma@ncsu.edu
+avatar: .envoprov/robot.jpg
+config:
+  - name: WitToken
+    friendly_name: Wit AI token for NLP
+    info: Wit package usage token
+    type: secret
+  - name: chef_private_key
+    friendly_name: Private Key for Chef operations
+    info: Private Key File Contents
+    type: secret
+slackscopes:
+ - bot
+ - reactions:write
+ - message.im
