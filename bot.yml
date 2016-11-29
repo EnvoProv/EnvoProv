@@ -7,6 +7,10 @@ config:
     friendly_name: Wit AI token for NLP
     info: Wit package usage token
     type: secret
+  - name: chef_private_key
+    friendly_name: Private Key for Chef operations
+    info: Private Key File Contents
+    type: secret
 slackscopes:
  - bot
  - reactions:write
