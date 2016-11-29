@@ -69,9 +69,9 @@ Public IP: X.X.X.X
 
 <li> Now the bot will ask for configuration, technology stack, credentials file and public/private key file similar as described in `Create Instance` scenario. It will only ask for technology stack if other information was already provided.  </li><br/>
 
-<li>In the final step, bot will create as many VMs as required for the particular technology stack that you have chosen (1 for Apache, 3 each for MEAN and LAMP stack). It will display the details of the VMs once those are provisioned.</li>
+<li>In the final step, bot will create as many VMs as required for the particular technology stack that you have chosen (1 for Apache, 3 each for MEAN and LAMP stack). It will display the details of the VMs once those are provisioned.</li><br/>
 
-<li>Please note that you have to wait for the technology stacks to be installed on the provisioned resources after you get the details.</li>
+<li>Please note that you have to wait for the technology stacks to be installed on the provisioned resources after you get the details.</li><br/>
 </ul>
 <br/>
 
@@ -81,6 +81,6 @@ Public IP: X.X.X.X
 
 <li> To delete a VM, type `delete VM`, 'delete an instance' or any slight variation of this command.  </li><br/>
 
-<li>In the next step, bot will ask you for the instance ID, which was provided to you when the VM was provisioned.</li>
+<li>In the next step, bot will ask you for the instance ID, which was provided to you when the VM was provisioned.</li><br/>
 
 <li>After this, the bot will asynchronously delete your VM and you can move on to next task.</li>
