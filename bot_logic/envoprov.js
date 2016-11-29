@@ -3,6 +3,7 @@ var service = require("./service.js");
 var shell = require('child_process').exec;
 var WitBot = require('../witaibot/index.js')
 var Slack_file_upload = require('node-slack-upload');
+require('dotenv').config()
 var fs = require('fs');
 const path = require('path');
 var slack_file_upload = new Slack_file_upload(process.env.EnvoProvToken);
