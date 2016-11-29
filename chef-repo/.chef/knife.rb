@@ -4,6 +4,6 @@ current_dir = File.dirname(__FILE__)
 log_level                :info
 log_location             STDOUT
 node_name                "gauravaradhye"
-client_key               "#{current_dir}/gauravaradhye.pem"
+client_key               "#{current_dir}/chefKey.pem"
 chef_server_url          "https://api.chef.io/organizations/envoprov"
 cookbook_path            ["#{current_dir}/../cookbooks"]
