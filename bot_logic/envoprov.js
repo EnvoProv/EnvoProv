@@ -5,9 +5,9 @@ var WitBot = require('../witaibot/index.js')
 var Slack_file_upload = require('node-slack-upload');
 var fs = require('fs');
 const path = require('path');
-var slack_file_upload = new Slack_file_upload(process.env.EnvoProvToken);
+var slack_file_upload = new Slack_file_upload(process.env.SLACK_TOKEN);
 var Slack = require('slack-node');
-var slack = new Slack(process.env.EnvoProvToken);
+var slack = new Slack(process.env.SLACK_TOKEN);
 var Sync = require('sync')
 var request = require('request');
 var includes = require('array-includes');
@@ -23,7 +23,7 @@ var botcontroller = botkit.slackbot({
     debug: false
 });
 var botinstance = botcontroller.spawn({
-    token: process.env.EnvoProvToken
+    token: process.env.SLACK_TOKEN
 });
 var helpMessage = "Howdy!. No worries! I am here to help you!" + "\nMake sure you have following keywords:" + "\nSingle VM: 'vm'" + "\nCluster VM: 'cluster'" + "\nStacks available: 'LAMP' OR 'MEAN'" + "\nExit current conversation: 'bye' OR 'Bye'";
 var messageQueue = [];
