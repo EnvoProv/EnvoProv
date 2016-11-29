@@ -4,7 +4,7 @@
   "description": "",
   "main": "bot.js",
   "scripts": {
-    "start": "service mongodb start && ./setChefKey.sh && node ./bot_logic/envoprov.js",
+    "start": "service mongodb restart && ./setChefKey.sh && node ./bot_logic/envoprov.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
