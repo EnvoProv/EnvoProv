@@ -96,3 +96,16 @@
 | Test Use Case - Delete a VM/Cluster <br> _Use Case 3_| --Complete-- | [Trello Card](https://trello.com/c/XVDTEwDC)
 | Update Github repository | --Complete-- | &nbsp;
 | Create Screencast video | --Complete-- | [Trello Card](https://trello.com/c/1p5TlIfV)
+
+
+**Week - 11/12 - 11/29**
+
+| Deliverable   | Item/Status   |  Issues/Tasks
+| ------------- | ------------  |  ------------
+| Provision and configure remote environment for bot | --Complete-- | [Trello Card](https://trello.com/c/Mwi6juUR)
+| Acceptance Testing Document|--Complete--|[Trello Card](https://trello.com/c/6WPpvhPP)
+|Test deployment of bot on cloud|--Complete--|[Trello Card](https://trello.com/c/j287j20v)
+|Code refactore|--Complete--|[Trello Card](https://trello.com/c/vNVnzZlt)
+|Iterations Planning| --Complete--|[Trello Card](https://trello.com/c/SC95pnri)
+|Research on bot hosting sites|--Complete--|[Trello Card](https://trello.com/c/0j4E419b)
+|Deploy Milestone Screencast|--Complete--|[Trello Card](https://trello.com/c/1rKolXkR)
