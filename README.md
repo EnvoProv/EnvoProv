@@ -22,8 +22,6 @@ Envoprov is an interactive bot which helps user provision stacks (LAMP, MEAN etc
 
 Note: We have sent accross an invitation to join the slack group - `csc510-project-group`
 
-###Screencast displaying configuration management and functioning use case:
-
 ###Design Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/DESIGN.md)
 ###Bot Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/BOT.md)
 ###Service Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/Service/SERVICE.md)
