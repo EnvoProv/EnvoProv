@@ -1,0 +1,83 @@
+---
+
+- hosts: AppServer
+  gather_facts: false
+  sudo: yes
+  pre_tasks:
+    - name: Update apt
+      raw: apt-get update
+
+    - name: Install python
+      raw: apt-get -y install python-simplejson
+
+  tasks:
+    - name: Updating apt cache
+      sudo: yes
+      apt: update_cache=true cache_valid_time=3600
+
+    - name: Install node 6.x
+      shell: curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+
+    - name: Install nodejs
+      apt: pkg=nodejs state=present
+
+    - name: Installing forever
+      sudo: yes 
+      command: npm install forever -g
+
+    - name: Installing git
+      sudo: yes
+      apt: pkg=git state=installed update_cache=true
+
+    - name: Importing public key for mongoDB installation
+      command: apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+
+    - name: Creating list file for mongodb
+      shell: echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+
+    - name: Updating apt cache
+      sudo: yes
+      apt: update_cache=true cache_valid_time=3600
+
+    - name: Installing mongoDB package
+      sudo: yes
+      command: apt-get install -y mongodb
+
+    - name: Install chef
+      command: wget https://packages.chef.io/stable/ubuntu/12.04/chefdk_0.19.6-1_amd64.deb
+
+    - name: Install chef-2
+      sudo: yes
+      command: dpkg -i chefdk_0.19.6-1_amd64.deb
+
+    - name: Adding the path in the bashrc files
+      lineinfile: dest=/root/.bashrc line='export WitToken={{lookup('env','WitToken')}}' insertafter='EOF' state=present
+
+    - name: Adding the path in the bashrc files
+      lineinfile: dest=/root/.bashrc line='export SLACK_TOKEN={{lookup('env','SLACK_TOKEN')}}' insertafter='EOF' state=present
+
+    - name: Source the bashrc file
+      shell: . ~/.bashrc
+
+    - name: Cloning the App Repository
+      git: repo=https://github.com/EnvoProv/EnvoProv.git version=master dest=/src/App
+
+    - name: Build Essential package
+      sudo: yes
+      apt: pkg=build-essential state=present
+
+    - name: Installing npm dependencies
+      npm: path=/src/App/
+
+    - name: Copy chef server key
+      copy: src=./chefKey.pem dest=/src/App/.chef mode=0600
+
+    - name: Source the bashrc file
+      shell: . ~/.bashrc
+
+    - name: "Copy set Tokens shell script file."
+      copy:  src=./setTokens.sh dest=/src/App/ mode=777
+
+    - name: Run setTokens.sh
+      command: sh /src/App/setTokens.sh
+
