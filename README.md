@@ -15,6 +15,7 @@ Envoprov is an interactive bot which helps user provision stacks (LAMP, MEAN etc
 * Create an instance in AWS using a registered private key.
 * Install ansible on your host machine.
 * Add the IP of the AWS instance created and add it to inventory file.
+* Edit the file setTokens.sh by adding SLACK_TOKEN and WitToken.
 * Run `ansible-playbook EnvoProvDeploy.yaml -i inventory`.
 * After successful configuration you would see the 'envoprov' bot activated.
 * The description of the three use cases and steps to run them are provided in the Acceptance Testing Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/Service/ACCEPTANCE-TESTING.md)
