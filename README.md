@@ -11,12 +11,15 @@ Envoprov is an interactive bot which helps user provision stacks (LAMP, MEAN etc
 * Kartikeya Pharasi: kpharas
 * Shruti Kuber: skuber
 
-###Steps to run configuration management and deployment scripts
+###Steps to run configuration management and deployment scripts.
 * Create an instance in AWS using a registered private key.
 * Install ansible on your host machine.
 * Add the IP of the AWS instance created and add it to inventory file.
-* Run `ansible-playbook EnvoProvDeploy.yaml -i inventory`
-* After successful configuration you would see the envoprov bot activated.
+* Run `ansible-playbook EnvoProvDeploy.yaml -i inventory`.
+* After successful configuration you would see the 'envoprov' bot activated.
+* The description of the three use cases and steps to run them are provided in the Acceptance Testing Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/Service/ACCEPTANCE-TESTING.md)
+
+Note: We have sent accross an invitation to join the slack group - `csc510-project-group`
 
 ###Screencast displaying configuration management and functioning use case:
 
