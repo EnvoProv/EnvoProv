@@ -79,7 +79,7 @@ Public IP: X.X.X.X
 <ul>
 <li> For deleting a cluster, you will have to individually delete the VMs belonging to that particular cluster. The procedure remains same for deleting an independent VM.</li><br/>
 
-<li> To delete a VM, type `delete VM`, 'delete an instance' or any slight variation of this command.  </li><br/>
+<li> To delete a VM, type, 'deleteinstance'.  </li><br/>
 
 <li>In the next step, bot will ask you for the instance ID, which was provided to you when the VM was provisioned.</li><br/>
 
