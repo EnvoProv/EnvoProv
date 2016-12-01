@@ -4,7 +4,7 @@
 
 * Aniket Patel (apatel10)
 * Gaurav Aradhye (garadhy)
-* Kartikey Pharasi (kpharas)
+* Kartikeya Pharasi (kpharas)
 * Shruti Kuber (skuber)
 * Subodh Dharmadhikari (skuber)
 
