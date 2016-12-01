@@ -222,7 +222,7 @@ function createVM(username, convo, bot, message, nodeName, cookbookName) {
                                         bot.reply(message, "Your instance is ready");
                                         bot.reply(message, "\n\nInstance Id : " + instance.instanceid + "\nPublic DNS Name: " + instance.publicdns + "\nPublic IP: " + instance.publicip);
                                         instanceIP = instance.publicip;
-                                        bot.reply(message, "Provision of stack will take 5-10 minutes.");
+                                        bot.reply(message, "Provision of stack will take 5-10 minutes, please wait...");
                                     })
                                 }
                             });
@@ -230,6 +230,7 @@ function createVM(username, convo, bot, message, nodeName, cookbookName) {
                                 if (err) console.log(err, err.stack);
                                 runCookbook(cookbookName, configuration["ssh-user"], private_key_info.path, instanceIP, nodeName);
                                 bot.reply(message, "Your instance is provisioned.");
+                                convo.stop();
                             })
                         });
                     }
@@ -510,6 +511,7 @@ var deleteResource = function(bot, message) {
                                     convo.say('Sorry the VM ID selected does not exists or you do not have access rights to it');
                                     convo.next();
                                 } else {
+				    convo.say('Your instance is being deleted, you can proceed to next task.');
                                     service.getUserConfiguration(userName, function(configuration) {
                                         testDelete(userName, configuration, id_vms);
                                     });
