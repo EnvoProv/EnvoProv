@@ -80,6 +80,9 @@ The following screenshots demonstrates some basic conversation with _@envoprov_
  * _Chef_ - Internal Configuration Management tool to perform provisioning of technology stacks.
  * _Ansible_ - Configuration Management and Deployment tool to deploy the bot on any platform.
 
+#### An overview of your whole development process:<br>
+<p> We began from the basics learnt in the class workshops which involved us to develop a bot using Slack. Our project used a wide variety of technology stack ranging from Nodejs, Slack, AWS, Ansible, Chef and Witai. Beginning from the simple interaction of the bot using mock data we shifted to using MongoDB for storing our credentials, configurations and keys. The provisioning of the instances was done on AWS and the configuration of the stack was done using the Chef. This was implemented through the Chef servers using the cookbooks available. Finally we deployed our bot on an AWS instance and configured the same using Ansible.</p>
+
 ## Limitations
 
 * Limited to provisioning on AWS.
