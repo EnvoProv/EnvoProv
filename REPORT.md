@@ -29,7 +29,9 @@ Public IP: xxx.xxx.xxx.xxx
 
 This information will be helpful in accessing the machines for future use.
 
-The bot thus, makes life easier for user to automate the process to create and install the software required and in less amount of time than the manual process.
+The bot thus, makes life easier for user to automate the process to create and install the software required and in less amount of time than the manual process. 
+
+The target audience we intend to cover with this bot can be a student who wants to go through less steps in creation, installation of softwares and mainitainance of any VM for academic purpose. It can also be used by a System Administrator, where he can request a sinlge VM on demand for his work or provision a cluster of VM based on demands of project for testing or new developemnt environment.
 
 ## Primary Features
 
@@ -37,6 +39,7 @@ The bot thus, makes life easier for user to automate the process to create and i
 * Installation of requested software/ technology stack
 * Ready-to-Deploy scripts for installation of bot.
 * Integrate the bot with help of slackapp with any team.
+* Easy to enter credentials of VM provider, use file upload feature to perform this action. User need not enter the credentials.
 
 ## Reflection on Development process and project
 
@@ -48,6 +51,6 @@ The bot thus, makes life easier for user to automate the process to create and i
 
 ## Future Work
 
-* Extend the provisioning to other cloud service providers.
-* Support wide range of software to be installed.
+* Extend the provisioning to other cloud service providers. For e.g. Digital Ocean
+* Support wide range of software to be installed. Extent provisioning of on the fly software packages.
 * Provide a more secure way to handle service provider tokens. 
