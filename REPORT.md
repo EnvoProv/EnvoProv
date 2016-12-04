@@ -70,6 +70,16 @@ The following screenshots demonstrates some basic conversation with _@envoprov_
 
 ## Reflection on Development process and project
 
+#### Development and Deployment environment
+
+ * _Slack_  - Bot hosting agent.
+ * _EC2 Amazon Web Services_ - Bot hosting server.
+ * _NodeJS_ - Development platform.
+ * _mongoDB_ - Database for storage of user information.
+ * _wit.ai_ - Natural Language Processing API for slack input processing.
+ * _Chef_ - Internal Configuration Management tool to perform provisioning of technology stacks.
+ * _Ansible_ - Configuration Management and Deployment tool to deploy the bot on any platform.
+
 ## Limitations
 
 * Limited to provisioning on AWS.
