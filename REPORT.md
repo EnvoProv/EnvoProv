@@ -83,6 +83,14 @@ The following screenshots demonstrates some basic conversation with _@envoprov_
 #### An overview of your whole development process:<br>
 <p> We began from the basics learnt in the class workshops which involved us to develop a bot using Slack. Our project used a wide variety of technology stack ranging from Nodejs, Slack, AWS, Ansible, Chef and Witai. Beginning from the simple interaction of the bot using mock data we shifted to using MongoDB for storing our credentials, configurations and keys. The provisioning of the instances was done on AWS and the configuration of the stack was done using the Chef. This was implemented through the Chef servers using the cookbooks available. Finally we deployed our bot on an AWS instance and configured the same using Ansible.</p>
 
+#### Problems you met and how did you solve them:<br>
+* One of the biggest problem we faced was with our earlier design decision where we directly sent the request to the chef server who provided an instance on AWS and then configured it. This was solved by changing the design such that the request by the user first created an AWS instance whose details were provided to the chef server to bootstrap a node using knife commands.
+* Another problem was how to pass along the credentials of the users while interacting with the bot which was solved using json formatted files which were filled my users whose content was extracted and the file cleared after that.
+
+#### Valuable things you have learnt from this project:<br>
+* The agile methodology that was followed during the entire development task was a great learning tool. We realised how things become much more easier with a team when such the agile process is followed.
+* The project helped us learn a variety of tools which would help us in not only the software development cycle of a project but also the DevOps side.
+
 ## Limitations
 
 * Limited to provisioning on AWS.
