@@ -27,11 +27,4 @@ Note: We have sent accross an invitation to join the slack group - `csc510-proje
 ###Service Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/Service/SERVICE.md)
 ###Acceptance Testing Document [Click here!](https://github.com/EnvoProv/EnvoProv/blob/Service/ACCEPTANCE-TESTING.md)
 ###Deploy Milestone Screencast Link [Click here!](https://www.youtube.com/watch?v=g3I_fHzusYQ)
-<<<<<<< HEAD
 ###Final Project Report [Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/REPORT.md)
-=======
-###Final Report [Click here!](https://github.com/EnvoProv/EnvoProv/blob/master/REPORT.md)
-
-
-
->>>>>>> 78a94338c692305e32e6ce99d328cc39878f5fa2
