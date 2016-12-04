@@ -105,7 +105,7 @@ After Chef commands were fired from the Bot server, first the `knife-ec2` plugin
 * We also tried various NLP libraries to make our bot more intelligent, may of which were npm libraries but finally decided on Witai which is a highly updated and reputed library. 
 * Choosing the semi-structured format of MongoDB was also a decision we made which we felt best fitted our requirements. 
 * For creating infrastructure, we had to choose a configuration management tool which would deploy resources and configure them as per user requirements. We found that Chef was the best option for us because we could also use `knife-ec2` plugin which was customized for AWS EC2. And Chef is based on pull model so it was faster to create cloud resources as it was not waiting for individual resources to get configured.
-* Finally for the deployment of the final application we felt that Ansible is the most reliable and efficient way of deploying our application on an AWS instance.</	ul>
+* Finally for the deployment of the final application we felt that Ansible is the most reliable and efficient way of deploying our application on an AWS instance.
 
 #### Problems you met and how did you solve them:<br>
 * One of the biggest problem we faced was with our earlier design decision where we directly sent the request to the chef server who provided an instance on AWS and then configured it. This was solved by changing the design such that the request by the user first created an AWS instance whose details were provided to the chef server to bootstrap a node using knife commands.
