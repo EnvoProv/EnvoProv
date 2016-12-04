@@ -13,13 +13,15 @@
 
 Often creation of environments for different type of deployments such as production, testing, development, staging is a painstakingly long and manual process. In addition to this, if the deployment consists of a particular technology stack having multiple interconnected components, the configuration of such components has to be done by a knowledgeable person.
 
-Also, configuration of the different components of technology stack is manual process and can induce some errors, thus delaying the deployment. By automating this process, the entire process will be error free and faster.
+Also, configuration of the different components of technology stack is a manual process and due to the high probability of various dependencies being present, manual configuration can induce several errors, thus delaying the deployment. By automating this process, the entire process will be error free and faster.
 
 ## Solution
 
 EnvoProv is a conversational bot which will assist the user to provision the machines on Amazon Web Services.
 
-It will assist the user by creating and provisioning of required machines with desired technology stack like LAMP and MEAN. It will reply with the details of machine. Since we are using AWS, it will reply you back with the information like
+It assists the user by creating and provisioning required machines with the desired technology stack like LAMP and MEAN by obtaining the necessary details like configurations and necessary credentials from the user. The output that the bot provides to the user contain all the details of the provisioned machine that the user will need to access it and begin using it.
+
+Since we are using AWS, it provides information something like the follwoing:
 
 <pre>
 Instance Id : i-9a9a9a99a9a
@@ -40,6 +42,7 @@ The target audience we intend to cover with this bot can be a student who wants 
 * Ready-to-Deploy scripts for installation of bot.
 * Integrate the bot with help of slackapp with any team.
 * Easy to enter credentials of VM provider, use file upload feature to perform this action. User need not enter the credentials.
+* Guide the user through the entire process with detailed instructions
 
 ## Reflection on Development process and project
 
