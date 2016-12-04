@@ -6,7 +6,7 @@
 * Gaurav Aradhye (garadhy)
 * Kartikeya Pharasi (kpharas)
 * Shruti Kuber (skuber)
-* Subodh Dharmadhikari (skuber)
+* Subodh Dharmadhikari (ssdharma)
 
 
 ## Problem
@@ -31,9 +31,33 @@ Public IP: xxx.xxx.xxx.xxx
 
 This information will be helpful in accessing the machines for future use.
 
-The bot thus, makes life easier for user to automate the process to create and install the software required and in less amount of time than the manual process. 
+The bot thus, makes life easier for user to automate the process to create and install the software required and in less amount of time than the manual process.
 
 The target audience we intend to cover with this bot can be a student who wants to go through less steps in creation, installation of softwares and mainitainance of any VM for academic purpose. It can also be used by a System Administrator, where he can request a sinlge VM on demand for his work or provision a cluster of VM based on demands of project for testing or new developemnt environment.
+
+## Screenshots
+
+The following screenshots demonstrates some basic conversation with _@envoprov_
+
+* User can type in **help** to get basic commands the @envoprov can understand.
+
+  ![help](./docs/help.PNG)
+
+
+* A sample conversation to create a **single VM** on cloud can be seen below:
+
+  ![single](./docs/singleworkflow.PNG)
+
+
+* A sample conversation to create a **cluster** of 3 VM (default number of machines in a cluster) can be seen below:
+
+  ![cluster](./docs/clusterworkflow.PNG)
+
+ * A sample conversation to **delete** a instance either a created as a single VM or as a part of cluster can be seen below:
+
+ <br>![delete](./docs/deleteworkflow.PNG)
+
+
 
 ## Primary Features
 
@@ -56,4 +80,4 @@ The target audience we intend to cover with this bot can be a student who wants 
 
 * Extend the provisioning to other cloud service providers. For e.g. Digital Ocean
 * Support wide range of software to be installed. Extent provisioning of on the fly software packages.
-* Provide a more secure way to handle service provider tokens. 
+* Provide a more secure way to handle service provider tokens.
