@@ -80,6 +80,23 @@ The following screenshots demonstrates some basic conversation with _@envoprov_
  * _Chef_ - Internal Configuration Management tool to perform provisioning of technology stacks.
  * _Ansible_ - Configuration Management and Deployment tool to deploy the bot on any platform.
 
+####Architectural components:
+
+**wit.ai** - This is an external AI service which we used for two purposes. First, for understanding the user input better and allow user to use normal english language as opposed to using fixed set commands. And second, to process user input and get structured data back so as to understand the input accurately and take further actions accordingly.
+
+We gave multiple possible user inputs ourselves to the AI and trained the AI service to categorize the input into a specific category of intent. We set 0.5 as a threshold for intent matching. After training with sample data, we tested the AI service by requesting third party members outside the project to interact with the bot. We then monitored the AI to check if it correctly categorizes the input into matching intent category (match should be greater than 0.5). In some cases, when it could not categorize it correctly, we trained the bot again to deal with those particular cases so that the next time it works correctly.
+
+For unmatched inputs, the AI service responded with helpful message such as "I don't understand your input". We disregarded garbage inputs effectively.
+
+All this process helped to have interaction with the bot in natural language.
+
+**Chef** - Chef is the key component of our backend where the actual infrastructure creation takes place. We used the free version of enterprize Chef server (free upto 5 organizations). Once the Chef server was configured, we uploaded all the necessary cookbooks that contained the packages that our bot supported. After all the cookbooks were available, we used the server on which the bot was deployed as the Chef workstation. The benefit of using it as Chef workstation was all that bot had to do was convert the input received from wit.ai into appropriate Chef commands. For this to happen, it's necessary that you have Chef Development Kit installed on the same machine.
+
+After Chef commands were fired from the Bot server, first the `knife-ec2` plugin for Chef would allocate the VMs on AWS and install Chef Client on the nodes and then the Chef clients on the nodes would independently download all the required cookbooks from Chef Server, run them on the nodes and return back after the completion of tasks.
+
+**MongoDB** - We used MongoDB to store the user data on Bot server. The decision to use MongoDB as opposed to traditional SQL databases was based on the fact that the data received from the Cloud Providers was in JSON format with multitudes of different keys. It would have been very difficult to use SQL databases tracking huge number of columns in this case. And the advantage MongoDB provided was it allowed it to store unstructured JSON data in effective manner without any issue.
+
+
 #### An overview of your whole development process:<br>
 <p> We began from the basics learnt in the class workshops which involved us to develop a bot using Slack. Our project used a wide variety of technology stack ranging from Nodejs, Slack, AWS, Ansible, Chef and Witai. Beginning from the simple interaction of the bot using mock data we shifted to using MongoDB for storing our credentials, configurations and keys. The provisioning of the instances was done on AWS and the configuration of the stack was done using the Chef. This was implemented through the Chef servers using the cookbooks available. Finally we deployed our bot on an AWS instance and configured the same using Ansible.</p>
 
